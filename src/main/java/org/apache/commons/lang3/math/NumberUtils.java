@@ -555,10 +555,15 @@ public class NumberUtils {
      * @return {@code true} if the string is a correctly formatted number
      * @since 3.5
      */
-    public static boolean isCreatable(final String str) {
+    public static boolean isCreatable(final String str, boolean[] flags) {
         // 1 Start
+
+        flags[0] = true;
         if (StringUtils.isEmpty(str)) {
+            flags[1] = true;
             return false;
+        } else {
+            flags[24] = true;
         }
         // 1
         final char[] chars = str.toCharArray();
@@ -572,11 +577,16 @@ public class NumberUtils {
         // 2
         if (sz > start + 1 && chars[start] == '0' && !StringUtils.contains(str, '.')) { // leading 0, skip if is a decimal number
                                                                                         // 3
+            flags[2] = true;
             if (chars[start + 1] == 'x' || chars[start + 1] == 'X') { // leading 0x/0X
                                                                       // 2
+                flags[3] = true;
                 int i = start + 2;
                 if (i == sz) {
+                    flags[4] = true;
                     return false; // str == "0x"
+                } else {
+                    flags[25] = true;
                 }
                 // 1
                 // checking hex (it can't be anything else)
@@ -584,24 +594,35 @@ public class NumberUtils {
                     if ((chars[i] < '0' || chars[i] > '9')
                         && (chars[i] < 'a' || chars[i] > 'f')
                         && (chars[i] < 'A' || chars[i] > 'F')) {
+                        flags[5] = true;
                         return false;
+                    } else {
+                        flags[26] = true;
                     }
                     // 6
                 }
                 // 1
                 return true;
+           } else {
+               flags[27] = true;
            }
             if (Character.isDigit(chars[start + 1])) {
+                flags[6] = true;
                    // leading 0, but not hex, must be octal
                    int i = start + 1;
                    for (; i < chars.length; i++) {
                        if (chars[i] < '0' || chars[i] > '7') {
+                           flags[7] = true;
                            return false;
+                       } else {
+                           flags[28] = true;
                        }
                        // 2
                    }
                    // 1
                    return true;
+               } else {
+                   flags[29] = true;
                }
             // 1
         }
@@ -613,81 +634,117 @@ public class NumberUtils {
         while (i < sz || i < sz + 1 && allowSigns && !foundDigit) {
             // 4
             if (chars[i] >= '0' && chars[i] <= '9') {
+                flags[8] = true;
                 // 2
                 foundDigit = true;
                 allowSigns = false;
 
             } else if (chars[i] == '.') {
+                flags[9] = true;
                 // 1
                 if (hasDecPoint || hasExp) {
+                    flags[10] = true;
                     // 2
                     // two decimal points or dec in exponent
                     return false;
+                } else {
+                    flags[30] = true;
                 }
                 hasDecPoint = true;
             } else if (chars[i] == 'e' || chars[i] == 'E') {
+                flags[11] = true;
                 // 2
                 // we've already taken care of hex.
                 if (hasExp) {
+                    flags[12] = true;
                     // 1
                     // two E's
                     return false;
+                } else {
+                    flags[31] = true;
                 }
                 if (!foundDigit) {
+                    flags[13] = true;
                     // 1
                     return false;
+                } else {
+                    flags[32] = true;
                 }
                 hasExp = true;
                 allowSigns = true;
             } else if (chars[i] == '+' || chars[i] == '-') {
+                flags[14] = true;
                 // 2
                 if (!allowSigns) {
+                    flags[15] = true;
                     // 1
                     return false;
+                } else {
+                    flags[33] = true;
                 }
                 allowSigns = false;
                 foundDigit = false; // we need a digit after the E
             } else {
+                flags[16] = true;
                 return false;
             }
             i++;
         }
         if (i < chars.length) {
+            flags[17] = true;
             // 1
             if (chars[i] >= '0' && chars[i] <= '9') {
+                flags[18] = true;
                 // 2
                 // no type qualifier, OK
                 return true;
+            } else {
+                flags[34] = true;
             }
             if (chars[i] == 'e' || chars[i] == 'E') {
+                flags[19] = true;
                 // 2
                 // can't have an E at the last byte
                 return false;
+            } else {
+                flags[35] = true;
             }
             if (chars[i] == '.') {
+                flags[20] = true;
                 // 1
                 if (hasDecPoint || hasExp) {
+                    flags[21] = true;
                     // 2
                     // two decimal points or dec in exponent
                     return false;
+                } else {
+                    flags[36] = true;
                 }
                 // single trailing decimal point after non-exponent is ok
                 return foundDigit;
+            } else {
+                flags[37] = true;
             }
             if (!allowSigns
                 && (chars[i] == 'd'
                     || chars[i] == 'D'
                     || chars[i] == 'f'
                     || chars[i] == 'F')) {
+                flags[22] = true;
                 // 5
                 return foundDigit;
+            } else {
+                flags[38] = true;
             }
             if (chars[i] == 'l'
                 || chars[i] == 'L') {
+                flags[23] = true;
                 // 2
                 // not allowing L with an exponent or decimal point
                 return foundDigit && !hasExp && !hasDecPoint;
                 // 2
+            } else {
+                flags[39] = true;
             }
             // last character is illegal
             return false;
@@ -739,7 +796,8 @@ public class NumberUtils {
      */
     @Deprecated
     public static boolean isNumber(final String str) {
-        return isCreatable(str);
+        boolean[] flags =  new boolean[40];
+        return isCreatable(str, flags);
     }
 
     /**

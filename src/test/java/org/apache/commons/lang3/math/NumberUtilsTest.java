@@ -30,6 +30,8 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 
 import org.apache.commons.lang3.AbstractLangTest;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -52,6 +54,13 @@ public class NumberUtilsTest extends AbstractLangTest {
         }
     }
 
+    public static boolean[] flags;
+
+    @BeforeAll
+    public static void setUp() {
+        flags = new boolean[40];
+    }
+
     @Test
     public void compareByte() {
         assertTrue(NumberUtils.compare((byte) -3, (byte) 0) < 0);
@@ -67,7 +76,7 @@ public class NumberUtilsTest extends AbstractLangTest {
     }
 
     private void compareIsCreatableWithCreateNumber(final String val, final boolean expected) {
-        final boolean isValid = NumberUtils.isCreatable(val);
+        final boolean isValid = NumberUtils.isCreatable(val, flags);
         final boolean canCreate = checkCreateNumber(val);
         assertTrue(isValid == expected && canCreate == expected, "Expecting " + expected
             + " for isCreatable/createNumber using \"" + val + "\" but got " + isValid + " and " + canCreate);
@@ -1745,5 +1754,21 @@ public class NumberUtilsTest extends AbstractLangTest {
     public void testToShortStringI() {
         assertEquals(12345, NumberUtils.toShort("12345", (short) 5), "toShort(String, short) 1 failed");
         assertEquals(5, NumberUtils.toShort("1234.5", (short) 5), "toShort(String, short) 2 failed");
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        int numBranchVisited = 0;
+        int i = 0;
+        for (Boolean b : flags) {
+            if (b) {
+                numBranchVisited++;
+            } else {
+                System.out.println("Branch nr: " + i + " never taken");
+            }
+            i++;
+        }
+        System.out.println("Number of branches visited: " + numBranchVisited);
+        System.out.println("Branch Coverage: " + numBranchVisited/40.0000);
     }
 }
