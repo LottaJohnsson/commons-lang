@@ -703,6 +703,13 @@ public class FastDateParserTest extends AbstractLangTest {
         }
     }
 
+    //Cover unsupported locale in parse method
+    @Test
+    public void testParseUnsupportedLocale() {
+        final DateParser fdp = getInstance(null, "dd MMM yyyy", TimeZones.GMT, new Locale("ja", "JP", "JP"));
+        assertThrows(ParseException.class, () -> fdp.parse("14 avr 2014"));
+    }
+
     private void validateSdfFormatFdpParseEquality(final String formatStr, final Locale locale, final TimeZone timeZone,
         final FastDateParser dateParser, final Date inDate, final int year, final Date csDate) throws ParseException {
         final SimpleDateFormat sdf = new SimpleDateFormat(formatStr, locale);
