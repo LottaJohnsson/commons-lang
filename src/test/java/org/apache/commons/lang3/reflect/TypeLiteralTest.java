@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 import org.apache.commons.lang3.AbstractLangTest;
@@ -42,6 +43,18 @@ public class TypeLiteralTest extends AbstractLangTest {
         assertNotEquals(new TypeLiteral<String>() {}, new TypeLiteral<List<String>>() {});
     }
 
+    @Test
+    public void testEqualsTrue() {
+        TypeLiteral t = new TypeLiteral<String>() {};
+        assertEquals(true, t.equals(t));
+    }
+
+    @Test
+    public void testEqualsFalse() {
+        TypeLiteral str = new TypeLiteral<String>() {};
+        int num = 1;
+        assertEquals(false, str.equals(num));
+    }
     @SuppressWarnings("rawtypes")
     @Test
     public void testRaw() {
