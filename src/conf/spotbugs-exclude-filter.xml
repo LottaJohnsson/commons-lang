@@ -117,7 +117,7 @@
   <!-- Reason: Very much intended to do a fall through on the switch -->
   <Match>
     <Class name="org.apache.commons.lang3.math.NumberUtils" />
-    <Method name="createNumber"/>
+    <Method name="createNumberFromRequest"/>
     <Bug pattern="SF_SWITCH_FALLTHROUGH" />
   </Match>
 
@@ -146,7 +146,7 @@
    in switch statements. All the excluded methods have switch statements that contain a default case. -->
   <Match>
     <Class name="org.apache.commons.lang3.math.NumberUtils"/>
-    <Method name="createNumber" />
+    <Method name="createNumberFromRequest" />
     <Bug pattern="SF_SWITCH_NO_DEFAULT" />
   </Match>
   <!-- Reason: FindBugs does not correctly recognize default branches in switch statements without break statements.
