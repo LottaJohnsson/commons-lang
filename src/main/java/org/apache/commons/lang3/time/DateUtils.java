@@ -1083,6 +1083,154 @@ public class DateUtils {
     }
 
     /**
+     * Internal calender rounding up method.
+     *
+     * @param val  the calendar, not null
+     * @param field  the field constant
+     * @param modType  type to truncate, round or ceiling
+     * @param aField a specific fiels inside fields
+     * @param roundUp should be rounded up
+     * @return the given calendar
+     * @throws ArithmeticException if the year is over 280 million
+     */
+    private static Calendar canlenderRoundup(final Calendar val, final int field, final ModifyType modType, int[] aField, boolean roundUp) {
+        if (modType == ModifyType.CEILING || modType == ModifyType.ROUND && roundUp) {
+            if (field == SEMI_MONTH) {
+                //This is a special case that's hard to generalize
+                //If the date is 1, we round up to 16, otherwise
+                //  we subtract 15 days and add 1 month
+                if (val.get(Calendar.DATE) == 1) {
+                    val.add(Calendar.DATE, 15);
+                } else {
+                    val.add(Calendar.DATE, -15);
+                    val.add(Calendar.MONTH, 1);
+                }
+            // Fix for LANG-440 START
+            } else if (field == Calendar.AM_PM) {
+                // This is a special case
+                // If the time is 0, we round up to 12, otherwise
+                //  we subtract 12 hours and add 1 day
+                if (val.get(Calendar.HOUR_OF_DAY) == 0) {
+                    val.add(Calendar.HOUR_OF_DAY, 12);
+                } else {
+                    val.add(Calendar.HOUR_OF_DAY, -12);
+                    val.add(Calendar.DATE, 1);
+                }
+                // Fix for LANG-440 END
+            } else {
+                //We need at add one to this field since the
+                //  last number causes us to round up
+                val.add(aField[0], 1);
+            }
+        }
+        return val;
+    }
+
+    /**
+     * Internal offset calculation method.
+     *
+     * @param val  the calendar, not null
+     * @param field  the field constant
+     * @param modType  type to truncate, round or ceiling
+     * @param aField a specific fiels inside fields
+     * @return rounding offset
+     * @throws ArithmeticException if the year is over 280 million
+     */
+    private static int switchOffset(final Calendar val, final int field, final ModifyType modType, int[] aField) {
+        int offset = 0;
+        switch (field) {
+            case SEMI_MONTH:
+                if (aField[0] == Calendar.DATE) {
+                    //If we're going to drop the DATE field's value,
+                    //  we want to do this our own way.
+                    //We need to subtract 1 since the date has a minimum of 1
+                    offset = val.get(Calendar.DATE) - 1;
+                    //If we're above 15 days adjustment, that means we're in the
+                    //  bottom half of the month and should stay accordingly.
+                    if (offset >= 15) {
+                        offset -= 15;
+                    }
+                    //Record whether we're in the top or bottom half of that range
+                }
+                break;
+            case Calendar.AM_PM:
+                if (aField[0] == Calendar.HOUR_OF_DAY) {
+                    //If we're going to drop the HOUR field's value,
+                    //  we want to do this our own way.
+                    offset = val.get(Calendar.HOUR_OF_DAY);
+                    if (offset >= 12) {
+                        offset -= 12;
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+        return offset;
+    }
+
+    /**
+     * Internal round up setting method.
+     *
+     * @param val  the calendar, not null
+     * @param field  the field constant
+     * @param modType  type to truncate, round or ceiling
+     * @param aField a specific fiels inside fields
+     * @param offset the rounding offset
+     * @param roundup the original round up
+     * @return new round up
+     * @throws ArithmeticException if the year is over 280 million
+     */
+    private static boolean switchRoundup(final Calendar val, final int field, final ModifyType modType, int[] aField, int offset, boolean roundUp) {
+        switch (field) {
+            case SEMI_MONTH:
+                if (aField[0] == Calendar.DATE) {
+                    //Record whether we're in the top or bottom half of that range
+                    roundUp = offset > 7;
+                }
+                break;
+            case Calendar.AM_PM:
+                if (aField[0] == Calendar.HOUR_OF_DAY) {
+                    //If we're going to drop the HOUR field's value,
+                    //  we want to do this our own way.
+                    roundUp = offset >= 6;
+                }
+                break;
+            default:
+                break;
+        }
+        return roundUp;
+    }
+
+    /**
+     * Internal offset calculation method.
+     *
+     * @param val  the calendar, not null
+     * @param field  the field constant
+     * @param modType  type to truncate, round or ceiling
+     * @param aField a specific fiels inside fields
+     * @return offsetSet
+     * @throws ArithmeticException if the year is over 280 million
+     */
+    private static boolean switchOffsetSet(final Calendar val, final int field, final ModifyType modType, int[] aField) {
+        switch (field) {
+            case SEMI_MONTH:
+                if (aField[0] == Calendar.DATE) {
+                    return true;
+                }
+                break;
+            case Calendar.AM_PM:
+                if (aField[0] == Calendar.HOUR_OF_DAY) {
+                    return true;
+                }
+                break;
+            default:
+                break;
+        }
+        return false;
+    }
+
+    /**
      * Internal calculation method.
      *
      * @param val  the calendar, not null
@@ -1146,74 +1294,15 @@ public class DateUtils {
             for (final int element : aField) {
                 if (element == field) {
                     //This is our field... we stop looping
-                    if (modType == ModifyType.CEILING || modType == ModifyType.ROUND && roundUp) {
-                        if (field == SEMI_MONTH) {
-                            //This is a special case that's hard to generalize
-                            //If the date is 1, we round up to 16, otherwise
-                            //  we subtract 15 days and add 1 month
-                            if (val.get(Calendar.DATE) == 1) {
-                                val.add(Calendar.DATE, 15);
-                            } else {
-                                val.add(Calendar.DATE, -15);
-                                val.add(Calendar.MONTH, 1);
-                            }
-                        // Fix for LANG-440 START
-                        } else if (field == Calendar.AM_PM) {
-                            // This is a special case
-                            // If the time is 0, we round up to 12, otherwise
-                            //  we subtract 12 hours and add 1 day
-                            if (val.get(Calendar.HOUR_OF_DAY) == 0) {
-                                val.add(Calendar.HOUR_OF_DAY, 12);
-                            } else {
-                                val.add(Calendar.HOUR_OF_DAY, -12);
-                                val.add(Calendar.DATE, 1);
-                            }
-                            // Fix for LANG-440 END
-                        } else {
-                            //We need at add one to this field since the
-                            //  last number causes us to round up
-                            val.add(aField[0], 1);
-                        }
-                    }
-                    return val;
+                    return canlenderRoundup(val, field, modType, aField, roundUp);
                 }
             }
             //We have various fields that are not easy roundings
-            int offset = 0;
-            boolean offsetSet = false;
+            int offset = switchOffset(val, field, modType, aField);
+            boolean offsetSet = switchOffsetSet(val, field, modType, aField);
             //These are special types of fields that require different rounding rules
-            switch (field) {
-                case SEMI_MONTH:
-                    if (aField[0] == Calendar.DATE) {
-                        //If we're going to drop the DATE field's value,
-                        //  we want to do this our own way.
-                        //We need to subtract 1 since the date has a minimum of 1
-                        offset = val.get(Calendar.DATE) - 1;
-                        //If we're above 15 days adjustment, that means we're in the
-                        //  bottom half of the month and should stay accordingly.
-                        if (offset >= 15) {
-                            offset -= 15;
-                        }
-                        //Record whether we're in the top or bottom half of that range
-                        roundUp = offset > 7;
-                        offsetSet = true;
-                    }
-                    break;
-                case Calendar.AM_PM:
-                    if (aField[0] == Calendar.HOUR_OF_DAY) {
-                        //If we're going to drop the HOUR field's value,
-                        //  we want to do this our own way.
-                        offset = val.get(Calendar.HOUR_OF_DAY);
-                        if (offset >= 12) {
-                            offset -= 12;
-                        }
-                        roundUp = offset >= 6;
-                        offsetSet = true;
-                    }
-                    break;
-                default:
-                    break;
-            }
+            roundUp = switchRoundup(val, field, modType, aField, offset, roundUp);
+
             if (!offsetSet) {
                 final int min = val.getActualMinimum(aField[0]);
                 final int max = val.getActualMaximum(aField[0]);
