@@ -781,6 +781,8 @@ public class NumberUtilsTest extends AbstractLangTest {
         compareIsCreatableWithCreateNumber("11 11", false);
         compareIsCreatableWithCreateNumber(" 1111", false);
         compareIsCreatableWithCreateNumber("1111 ", false);
+        compareIsCreatableWithCreateNumber("0x", false);
+        compareIsCreatableWithCreateNumber("12E12E", false);
 
         compareIsCreatableWithCreateNumber("2.", true); // LANG-521
         compareIsCreatableWithCreateNumber("1.1L", false); // LANG-664
