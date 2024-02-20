@@ -175,8 +175,8 @@ public class StrSubstitutor {
      * @param valueMap  the map with the values, may be null
      * @return the result of the replace operation
      */
-    public static <V> String replace(final Object source, final Map<String, V> valueMap) {
-        return new StrSubstitutor(valueMap).replace(source);
+    public static <V> String replace(final Object source, final Map<String, V> valueMap, boolean[] flags) {
+        return new StrSubstitutor(valueMap).replace(source, flags);
     }
     /**
      * Replaces all the occurrences of variables in the given source object with
@@ -191,8 +191,8 @@ public class StrSubstitutor {
      * @return the result of the replace operation
      * @throws IllegalArgumentException if the prefix or suffix is null
      */
-    public static <V> String replace(final Object source, final Map<String, V> valueMap, final String prefix, final String suffix) {
-        return new StrSubstitutor(valueMap, prefix, suffix).replace(source);
+    public static <V> String replace(final Object source, final Map<String, V> valueMap, final String prefix, final String suffix, boolean[] flags) {
+        return new StrSubstitutor(valueMap, prefix, suffix).replace(source, flags);
     }
     /**
      * Replaces all the occurrences of variables in the given source object with their matching
@@ -202,7 +202,7 @@ public class StrSubstitutor {
      * @param valueProperties the properties with values, may be null
      * @return the result of the replace operation
      */
-    public static String replace(final Object source, final Properties valueProperties) {
+    public static String replace(final Object source, final Properties valueProperties, boolean[] flags) {
         if (valueProperties == null) {
             return source.toString();
         }
@@ -213,7 +213,7 @@ public class StrSubstitutor {
             final String propValue = valueProperties.getProperty(propName);
             valueMap.put(propName, propValue);
         }
-        return replace(source, valueMap);
+        return replace(source, valueMap, flags);
     }
     /**
      * Replaces all the occurrences of variables in the given source object with
@@ -222,8 +222,8 @@ public class StrSubstitutor {
      * @param source  the source text containing the variables to substitute, null returns null
      * @return the result of the replace operation
      */
-    public static String replaceSystemProperties(final Object source) {
-        return new StrSubstitutor(StrLookup.systemPropertiesLookup()).replace(source);
+    public static String replaceSystemProperties(final Object source, boolean[] flags) {
+        return new StrSubstitutor(StrLookup.systemPropertiesLookup()).replace(source, flags);
     }
     /**
      * Stores the escape character.
@@ -516,12 +516,12 @@ public class StrSubstitutor {
      * @param source  the character array to replace in, not altered, null returns null
      * @return the result of the replace operation
      */
-    public String replace(final char[] source) {
+    public String replace(final char[] source, boolean[] flags) {
         if (source == null) {
             return null;
         }
         final StrBuilder buf = new StrBuilder(source.length).append(source);
-        substitute(buf, 0, source.length);
+        substitute(buf, 0, source.length, flags);
         return buf.toString();
     }
 
@@ -539,12 +539,12 @@ public class StrSubstitutor {
      * @param length  the length within the array to be processed, must be valid
      * @return the result of the replace operation
      */
-    public String replace(final char[] source, final int offset, final int length) {
+    public String replace(final char[] source, final int offset, final int length, boolean[] flags) {
         if (source == null) {
             return null;
         }
         final StrBuilder buf = new StrBuilder(length).append(source, offset, length);
-        substitute(buf, 0, length);
+        substitute(buf, 0, length, flags);
         return buf.toString();
     }
 
@@ -557,11 +557,11 @@ public class StrSubstitutor {
      * @return the result of the replace operation
      * @since 3.2
      */
-    public String replace(final CharSequence source) {
+    public String replace(final CharSequence source, boolean[] flags) {
         if (source == null) {
             return null;
         }
-        return replace(source, 0, source.length());
+        return replace(source, 0, source.length(), flags);
     }
 
     /**
@@ -579,12 +579,12 @@ public class StrSubstitutor {
      * @return the result of the replace operation
      * @since 3.2
      */
-    public String replace(final CharSequence source, final int offset, final int length) {
+    public String replace(final CharSequence source, final int offset, final int length, boolean[] flags) {
         if (source == null) {
             return null;
         }
         final StrBuilder buf = new StrBuilder(length).append(source, offset, length);
-        substitute(buf, 0, length);
+        substitute(buf, 0, length, flags);
         return buf.toString();
     }
 
@@ -596,12 +596,12 @@ public class StrSubstitutor {
      * @param source  the source to replace in, null returns null
      * @return the result of the replace operation
      */
-    public String replace(final Object source) {
+    public String replace(final Object source, boolean[] flags) {
         if (source == null) {
             return null;
         }
         final StrBuilder buf = new StrBuilder().append(source);
-        substitute(buf, 0, buf.length());
+        substitute(buf, 0, buf.length(), flags);
         return buf.toString();
     }
 
@@ -613,12 +613,12 @@ public class StrSubstitutor {
      * @param source  the builder to use as a template, not changed, null returns null
      * @return the result of the replace operation
      */
-    public String replace(final StrBuilder source) {
+    public String replace(final StrBuilder source, boolean[] flags) {
         if (source == null) {
             return null;
         }
         final StrBuilder buf = new StrBuilder(source.length()).append(source);
-        substitute(buf, 0, buf.length());
+        substitute(buf, 0, buf.length(), flags);
         return buf.toString();
     }
 
@@ -636,12 +636,12 @@ public class StrSubstitutor {
      * @param length  the length within the array to be processed, must be valid
      * @return the result of the replace operation
      */
-    public String replace(final StrBuilder source, final int offset, final int length) {
+    public String replace(final StrBuilder source, final int offset, final int length, boolean[] flags) {
         if (source == null) {
             return null;
         }
         final StrBuilder buf = new StrBuilder(length).append(source, offset, length);
-        substitute(buf, 0, length);
+        substitute(buf, 0, length, flags);
         return buf.toString();
     }
 
@@ -652,12 +652,12 @@ public class StrSubstitutor {
      * @param source  the string to replace in, null returns null
      * @return the result of the replace operation
      */
-    public String replace(final String source) {
+    public String replace(final String source, boolean[] flags) {
         if (source == null) {
             return null;
         }
         final StrBuilder buf = new StrBuilder(source);
-        if (!substitute(buf, 0, source.length())) {
+        if (!substitute(buf, 0, source.length(), flags)) {
             return source;
         }
         return buf.toString();
@@ -676,12 +676,12 @@ public class StrSubstitutor {
      * @param length  the length within the array to be processed, must be valid
      * @return the result of the replace operation
      */
-    public String replace(final String source, final int offset, final int length) {
+    public String replace(final String source, final int offset, final int length, boolean[] flags) {
         if (source == null) {
             return null;
         }
         final StrBuilder buf = new StrBuilder(length).append(source, offset, length);
-        if (!substitute(buf, 0, length)) {
+        if (!substitute(buf, 0, length, flags)) {
             return source.substring(offset, offset + length);
         }
         return buf.toString();
@@ -695,12 +695,12 @@ public class StrSubstitutor {
      * @param source  the buffer to use as a template, not changed, null returns null
      * @return the result of the replace operation
      */
-    public String replace(final StringBuffer source) {
+    public String replace(final StringBuffer source, boolean[] flags) {
         if (source == null) {
             return null;
         }
         final StrBuilder buf = new StrBuilder(source.length()).append(source);
-        substitute(buf, 0, buf.length());
+        substitute(buf, 0, buf.length(), flags);
         return buf.toString();
     }
 
@@ -718,12 +718,12 @@ public class StrSubstitutor {
      * @param length  the length within the array to be processed, must be valid
      * @return the result of the replace operation
      */
-    public String replace(final StringBuffer source, final int offset, final int length) {
+    public String replace(final StringBuffer source, final int offset, final int length, boolean[] flags) {
         if (source == null) {
             return null;
         }
         final StrBuilder buf = new StrBuilder(length).append(source, offset, length);
-        substitute(buf, 0, length);
+        substitute(buf, 0, length, flags);
         return buf.toString();
     }
 
@@ -734,11 +734,11 @@ public class StrSubstitutor {
      * @param source  the builder to replace in, updated, null returns zero
      * @return true if altered
      */
-    public boolean replaceIn(final StrBuilder source) {
+    public boolean replaceIn(final StrBuilder source, boolean[] flags) {
         if (source == null) {
             return false;
         }
-        return substitute(source, 0, source.length());
+        return substitute(source, 0, source.length(), flags);
     }
 
     /**
@@ -754,11 +754,11 @@ public class StrSubstitutor {
      * @param length  the length within the builder to be processed, must be valid
      * @return true if altered
      */
-    public boolean replaceIn(final StrBuilder source, final int offset, final int length) {
+    public boolean replaceIn(final StrBuilder source, final int offset, final int length, boolean[] flags) {
         if (source == null) {
             return false;
         }
-        return substitute(source, offset, length);
+        return substitute(source, offset, length, flags);
     }
 
     /**
@@ -769,11 +769,11 @@ public class StrSubstitutor {
      * @param source  the buffer to replace in, updated, null returns zero
      * @return true if altered
      */
-    public boolean replaceIn(final StringBuffer source) {
+    public boolean replaceIn(final StringBuffer source, boolean[] flags) {
         if (source == null) {
             return false;
         }
-        return replaceIn(source, 0, source.length());
+        return replaceIn(source, 0, source.length(), flags);
     }
 
     /**
@@ -790,12 +790,12 @@ public class StrSubstitutor {
      * @param length  the length within the buffer to be processed, must be valid
      * @return true if altered
      */
-    public boolean replaceIn(final StringBuffer source, final int offset, final int length) {
+    public boolean replaceIn(final StringBuffer source, final int offset, final int length, boolean[] flags) {
         if (source == null) {
             return false;
         }
         final StrBuilder buf = new StrBuilder(length).append(source, offset, length);
-        if (!substitute(buf, 0, length)) {
+        if (!substitute(buf, 0, length, flags)) {
             return false;
         }
         source.replace(offset, offset + length, buf.toString());
@@ -811,11 +811,11 @@ public class StrSubstitutor {
      * @return true if altered
      * @since 3.2
      */
-    public boolean replaceIn(final StringBuilder source) {
+    public boolean replaceIn(final StringBuilder source, boolean[] flags) {
         if (source == null) {
             return false;
         }
-        return replaceIn(source, 0, source.length());
+        return replaceIn(source, 0, source.length(), flags);
     }
 
     /**
@@ -833,12 +833,12 @@ public class StrSubstitutor {
      * @return true if altered
      * @since 3.2
      */
-    public boolean replaceIn(final StringBuilder source, final int offset, final int length) {
+    public boolean replaceIn(final StringBuilder source, final int offset, final int length, boolean[] flags) {
         if (source == null) {
             return false;
         }
         final StrBuilder buf = new StrBuilder(length).append(source, offset, length);
-        if (!substitute(buf, 0, length)) {
+        if (!substitute(buf, 0, length, flags)) {
             return false;
         }
         source.replace(offset, offset + length, buf.toString());
@@ -1091,10 +1091,11 @@ public class StrSubstitutor {
      * @param buf  the string builder to substitute into, not null
      * @param offset  the start offset within the builder, must be valid
      * @param length  the length within the builder to be processed, must be valid
+     *
      * @return true if altered
      */
-    protected boolean substitute(final StrBuilder buf, final int offset, final int length) {
-        return substitute(buf, offset, length, null) > 0;
+    protected boolean substitute(final StrBuilder buf, final int offset, final int length, boolean[] flags) {
+        return substitute(buf, offset, length, null, flags) > 0;
     }
 
     /**
@@ -1109,7 +1110,9 @@ public class StrSubstitutor {
      * @return the length change that occurs, unless priorVariables is null when the int
      *  represents a boolean flag as to whether any change occurred.
      */
-    private int substitute(final StrBuilder buf, final int offset, final int length, List<String> priorVariables) {
+    private int substitute(final StrBuilder buf, final int offset, final int length, List<String> priorVariables, boolean[] flags) {
+        flags[0] = true;
+
         final StrMatcher pfxMatcher = getVariablePrefixMatcher();
         final StrMatcher suffMatcher = getVariableSuffixMatcher();
         final char escape = getEscapeChar();
@@ -1123,14 +1126,18 @@ public class StrSubstitutor {
         int bufEnd = offset + length;
         int pos = offset;
         while (pos < bufEnd) {
+            flags[1] = true;
             final int startMatchLen = pfxMatcher.isMatch(chars, pos, offset,
                     bufEnd);
             if (startMatchLen == 0) {
+                flags[2] = true;
                 pos++;
             } else // found variable start marker
             if (pos > offset && chars[pos - 1] == escape) {
+                flags[3] = true;
                 // escaped
                 if (preserveEscapes) {
+                    flags[4] = true;
                     pos++;
                     continue;
                 }
@@ -1140,15 +1147,19 @@ public class StrSubstitutor {
                 altered = true;
                 bufEnd--;
             } else {
+                flags[5] = true;
                 // find suffix
                 final int startPos = pos;
                 pos += startMatchLen;
                 int endMatchLen;
                 int nestedVarCount = 0;
                 while (pos < bufEnd) {
+                    flags[6] = true;
                     if (substitutionInVariablesEnabled
                             && (endMatchLen = pfxMatcher.isMatch(chars,
                                     pos, offset, bufEnd)) != 0) {
+                        flags[7] = true;
+                        flags[20] = true;
                         // found a nested variable start
                         nestedVarCount++;
                         pos += endMatchLen;
@@ -1158,16 +1169,20 @@ public class StrSubstitutor {
                     endMatchLen = suffMatcher.isMatch(chars, pos, offset,
                             bufEnd);
                     if (endMatchLen == 0) {
+                        flags[8] = true;
                         pos++;
                     } else {
+                        flags[9] = true;
                         // found variable end marker
                         if (nestedVarCount == 0) {
+                            flags[10] = true;
                             String varNameExpr = new String(chars, startPos
                                     + startMatchLen, pos - startPos
                                     - startMatchLen);
                             if (substitutionInVariablesEnabled) {
+                                flags[11] = true;
                                 final StrBuilder bufName = new StrBuilder(varNameExpr);
-                                substitute(bufName, 0, bufName.length());
+                                substitute(bufName, 0, bufName.length(), flags);
                                 varNameExpr = bufName.toString();
                             }
                             pos += endMatchLen;
@@ -1177,15 +1192,20 @@ public class StrSubstitutor {
                             String varDefaultValue = null;
 
                             if (valueDelimMatcher != null) {
+                                flags[12] = true;
                                 final char [] varNameExprChars = varNameExpr.toCharArray();
                                 int valueDelimiterMatchLen;
                                 for (int i = 0; i < varNameExprChars.length; i++) {
+                                    flags[13] = true;
                                     // if there's any nested variable when nested variable substitution disabled, then stop resolving name and default value.
                                     if (!substitutionInVariablesEnabled
                                             && pfxMatcher.isMatch(varNameExprChars, i, i, varNameExprChars.length) != 0) {
+                                        flags[14] = true;
+                                        flags[21] = true;
                                         break;
                                     }
                                     if ((valueDelimiterMatchLen = valueDelimMatcher.isMatch(varNameExprChars, i)) != 0) {
+                                        flags[15] = true;
                                         varName = varNameExpr.substring(0, i);
                                         varDefaultValue = varNameExpr.substring(i + valueDelimiterMatchLen);
                                         break;
@@ -1195,6 +1215,7 @@ public class StrSubstitutor {
 
                             // on the first call initialize priorVariables
                             if (priorVariables == null) {
+                                flags[16] = true;
                                 priorVariables = new ArrayList<>();
                                 priorVariables.add(new String(chars,
                                         offset, length));
@@ -1208,15 +1229,17 @@ public class StrSubstitutor {
                             String varValue = resolveVariable(varName, buf,
                                     startPos, endPos);
                             if (varValue == null) {
+                                flags[17] = true;
                                 varValue = varDefaultValue;
                             }
                             if (varValue != null) {
+                                flags[18] = true;
                                 // recursive replace
                                 final int varLen = varValue.length();
                                 buf.replace(startPos, endPos, varValue);
                                 altered = true;
                                 int change = substitute(buf, startPos,
-                                        varLen, priorVariables);
+                                        varLen, priorVariables, flags);
                                 change = change
                                         + varLen - (endPos - startPos);
                                 pos += change;
@@ -1238,8 +1261,10 @@ public class StrSubstitutor {
             }
         }
         if (top) {
+            flags[19] = true;
             return altered ? 1 : 0;
         }
         return lengthChange;
     }
 }
+
