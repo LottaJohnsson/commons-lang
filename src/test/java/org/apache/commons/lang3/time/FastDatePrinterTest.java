@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import java.io.Serializable;
 import java.text.FieldPosition;
@@ -100,6 +102,13 @@ public class FastDatePrinterTest extends AbstractLangTest {
      */
     protected DatePrinter getInstance(final String format, final TimeZone timeZone, final Locale locale) {
         return new FastDatePrinter(format, timeZone, locale);
+    }
+
+    @BeforeAll
+    public static void clearBranchCoverage() {
+        for (int i = 0; i < 47; i++) {
+            FastDatePrinter.branchCoverage[i] = false;
+        }
     }
 
     @Test
@@ -445,4 +454,19 @@ public class FastDatePrinterTest extends AbstractLangTest {
         assertEquals("2021", printer4DigitAnotherFallback.format(cal));
         assertEquals("21", printer2Digits.format(cal));
     }
+
+    @AfterAll
+    public static void printBranchCoverage() {
+        int visited = 0;
+        for (int i = 0; i < 47; i++) {
+            if (FastDatePrinter.branchCoverage[i]) {
+                visited++;
+            }
+            else {
+                System.out.println("Branch " + i + " not visited.");
+            }
+        }
+        System.out.println("Branch Coverage: " + visited + "/47 = " + (100.0*visited/47));
+    }
+
 }
