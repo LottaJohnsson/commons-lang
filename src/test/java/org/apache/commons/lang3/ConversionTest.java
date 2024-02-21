@@ -365,6 +365,7 @@ public class ConversionTest extends AbstractLangTest {
             0x1234567876BCDEF0L,
             Conversion.binaryToLong(src, 15 * 4, 0x123456798ABCDEF0L, 24, 3 * 4));
 
+        //added
         assertThrows(IllegalArgumentException.class, ()-> Conversion.binaryToLong(src, 1 * 4, 0L, 5, 8 * 8));
     }
 
@@ -409,6 +410,7 @@ public class ConversionTest extends AbstractLangTest {
         assertEquals(0xCD345678, Conversion.byteArrayToInt(src, 0, 0x12345678, 24, 1));
         // assertEquals(0x56341278, Conversion.ByteArrayToInt(src, 5, 0x01234567, 8, 4));
 
+        //added
         assertThrows(IllegalArgumentException.class, () -> Conversion.byteArrayToInt(src, 0, 0x12345678, 24, 5) );
     }
 
