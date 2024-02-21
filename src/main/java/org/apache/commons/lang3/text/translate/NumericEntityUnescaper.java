@@ -144,7 +144,7 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
             try {
                 if (isHex) { // +1
                     entityValue = Integer.parseInt(input.subSequence(start, end).toString(), 16);
-                } else { // +1
+                } else {
                     entityValue = Integer.parseInt(input.subSequence(start, end).toString(), 10);
                 }
             } catch (final NumberFormatException nfe) {
@@ -155,14 +155,14 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
                 final char[] chars = Character.toChars(entityValue);
                 out.write(chars[0]);
                 out.write(chars[1]);
-            } else { // +1
+            } else {
                 out.write(entityValue);
             }
 
             return 2 + end - start + (isHex ? 1 : 0) + (semiNext ? 1 : 0); // +4
         }
         return 0; // +1 exit point
-        // Final complexity: 26 decisions, 2 exit points --> 26 - 2 + 2 = 26
+        // Final complexity: 24 decisions, 2 exit points --> 24 - 2 + 2 = 24
         // Lizard's complexity: 23 (doesn't count throwables)
     }
 }
