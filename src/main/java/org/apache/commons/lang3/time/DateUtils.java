@@ -1131,12 +1131,11 @@ public class DateUtils {
      *
      * @param val  the calendar, not null
      * @param field  the field constant
-     * @param modType  type to truncate, round or ceiling
      * @param aField a specific fiels inside fields
      * @return rounding offset
      * @throws ArithmeticException if the year is over 280 million
      */
-    private static int switchOffset(final Calendar val, final int field, final ModifyType modType, int[] aField) {
+    private static int switchOffset(final Calendar val, final int field, int[] aField) {
         int offset = 0;
         switch (field) {
             case SEMI_MONTH:
@@ -1172,16 +1171,14 @@ public class DateUtils {
     /**
      * Internal round up setting method.
      *
-     * @param val  the calendar, not null
      * @param field  the field constant
-     * @param modType  type to truncate, round or ceiling
      * @param aField a specific fiels inside fields
      * @param offset the rounding offset
      * @param roundup the original round up
      * @return new round up
      * @throws ArithmeticException if the year is over 280 million
      */
-    private static boolean switchRoundup(final Calendar val, final int field, final ModifyType modType, int[] aField, int offset, boolean roundUp) {
+    private static boolean switchRoundup(final int field, int[] aField, int offset, boolean roundUp) {
         switch (field) {
             case SEMI_MONTH:
                 if (aField[0] == Calendar.DATE) {
@@ -1205,14 +1202,12 @@ public class DateUtils {
     /**
      * Internal offset calculation method.
      *
-     * @param val  the calendar, not null
      * @param field  the field constant
-     * @param modType  type to truncate, round or ceiling
      * @param aField a specific fiels inside fields
      * @return offsetSet
      * @throws ArithmeticException if the year is over 280 million
      */
-    private static boolean switchOffsetSet(final Calendar val, final int field, final ModifyType modType, int[] aField) {
+    private static boolean switchOffsetSet(final int field, int[] aField) {
         switch (field) {
             case SEMI_MONTH:
                 if (aField[0] == Calendar.DATE) {
@@ -1298,10 +1293,10 @@ public class DateUtils {
                 }
             }
             //We have various fields that are not easy roundings
-            int offset = switchOffset(val, field, modType, aField);
-            boolean offsetSet = switchOffsetSet(val, field, modType, aField);
+            int offset = switchOffset(val, field, aField);
+            boolean offsetSet = switchOffsetSet(field, aField);
             //These are special types of fields that require different rounding rules
-            roundUp = switchRoundup(val, field, modType, aField, offset, roundUp);
+            roundUp = switchRoundup(field, aField, offset, roundUp);
 
             if (!offsetSet) {
                 final int min = val.getActualMinimum(aField[0]);
