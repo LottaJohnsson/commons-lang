@@ -104,13 +104,6 @@ public class FastDatePrinterTest extends AbstractLangTest {
         return new FastDatePrinter(format, timeZone, locale);
     }
 
-    @BeforeAll
-    public static void clearBranchCoverage() {
-        for (int i = 0; i < 47; i++) {
-            FastDatePrinter.branchCoverage[i] = false;
-        }
-    }
-
     @Test
     public void test1806() {
         for (final Expected1806 trial : Expected1806.values()) {
@@ -458,7 +451,7 @@ public class FastDatePrinterTest extends AbstractLangTest {
     @AfterAll
     public static void printBranchCoverage() {
         int visited = 0;
-        for (int i = 0; i < 47; i++) {
+        for (int i = 0; i < 48; i++) {
             if (FastDatePrinter.branchCoverage[i]) {
                 visited++;
             }
@@ -466,7 +459,7 @@ public class FastDatePrinterTest extends AbstractLangTest {
                 System.out.println("Branch " + i + " not visited.");
             }
         }
-        System.out.println("Branch Coverage: " + visited + "/47 = " + (100.0*visited/47));
+        System.out.println("Branch Coverage: " + visited + "/48 = " + (100.0*visited/48));
     }
 
 }
