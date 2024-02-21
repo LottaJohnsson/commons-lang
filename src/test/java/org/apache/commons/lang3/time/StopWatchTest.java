@@ -373,7 +373,7 @@ public class StopWatchTest extends AbstractLangTest {
         assertEquals(12 + MESSAGE.length() + 1, splitStr.length(), "Formatted split string not the correct length");
     }
 
-    //Cover illegal call to getStopTime of unstarted StopWatch
+    //Cover requirement that illegal call to getStopTime of unstarted StopWatch throws IllegalStateException
     @Test
     public void testGetIllegalStopTime() {
         final StopWatch watch = new StopWatch();

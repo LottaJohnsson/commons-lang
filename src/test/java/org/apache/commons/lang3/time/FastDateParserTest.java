@@ -703,7 +703,7 @@ public class FastDateParserTest extends AbstractLangTest {
         }
     }
 
-    //Cover unsupported locale in parse method
+    //Cover requirement that unsupported locale in parse method throws ParseException
     @Test
     public void testParseUnsupportedLocale() {
         final DateParser fdp = getInstance(null, "dd MMM yyyy", TimeZones.GMT, new Locale("ja", "JP", "JP"));

@@ -446,7 +446,7 @@ public class FastDatePrinterTest extends AbstractLangTest {
         assertEquals("21", printer2Digits.format(cal));
     }
 
-    // Cover all negative branches in equals method
+    // Cover requirement that equals method returns false for all negative branches
     @Test
     public void testFullNegativeBranchesEquals() {
         FastDatePrinter p1 = new FastDatePrinter(YYYY_MM_DD, NEW_YORK, Locale.US);
@@ -457,7 +457,7 @@ public class FastDatePrinterTest extends AbstractLangTest {
         assertNotEquals(p2, p3);
     }
 
-    // Cover invalid input to format methods
+    // Cover requirement that invalid Object input to format methods throws IllegalArgumentException
     @Test
     public void testFormatInvalidObject() {
         final FastDatePrinter printer = new FastDatePrinter(YYYY_MM_DD, NEW_YORK, Locale.US);
