@@ -1082,6 +1082,8 @@ public class DateUtils {
         throw new ClassCastException("Could not iterate based on " + calendar);
     }
 
+    public static boolean[] branchCoverage = new boolean[45];
+
     /**
      * Internal calculation method.
      *
@@ -1092,12 +1094,19 @@ public class DateUtils {
      * @throws ArithmeticException if the year is over 280 million
      */
     private static Calendar modify(final Calendar val, final int field, final ModifyType modType) {
+        branchCoverage[0] = true;
         if (val.get(Calendar.YEAR) > 280000000) {
+            branchCoverage[1] = true;
             throw new ArithmeticException("Calendar value too large for accurate calculations");
+        } else {
+            branchCoverage[2] = true;
         }
 
         if (field == Calendar.MILLISECOND) {
+            branchCoverage[3] = true;
             return val;
+        } else {
+            branchCoverage[4] = true;
         }
 
         // Fix for LANG-59 START
@@ -1113,69 +1122,102 @@ public class DateUtils {
         // truncate milliseconds
         final int millisecs = val.get(Calendar.MILLISECOND);
         if (ModifyType.TRUNCATE == modType || millisecs < 500) {
+            branchCoverage[5] = true;
             time -= millisecs;
+        } else {
+            branchCoverage[6] = true;
         }
         if (field == Calendar.SECOND) {
+            branchCoverage[7] = true;
             done = true;
+        } else {
+            branchCoverage[8] = true;
         }
 
         // truncate seconds
         final int seconds = val.get(Calendar.SECOND);
         if (!done && (ModifyType.TRUNCATE == modType || seconds < 30)) {
+            branchCoverage[9] = true;
             time = time - seconds * 1000L;
+        } else {
+            branchCoverage[10] = true;
         }
         if (field == Calendar.MINUTE) {
+            branchCoverage[11] = true;
             done = true;
+        } else {
+            branchCoverage[12] = true;
         }
 
         // truncate minutes
         final int minutes = val.get(Calendar.MINUTE);
         if (!done && (ModifyType.TRUNCATE == modType || minutes < 30)) {
+            branchCoverage[13] = true;
             time = time - minutes * 60000L;
+        } else {
+            branchCoverage[14] = true;
         }
 
         // reset time
         if (date.getTime() != time) {
+            branchCoverage[15] = true;
             date.setTime(time);
             val.setTime(date);
+        } else {
+            branchCoverage[16] = true;
         }
         // Fix for LANG-59 END
 
         boolean roundUp = false;
         for (final int[] aField : fields) {
+            branchCoverage[17] = true;
             for (final int element : aField) {
+                branchCoverage[18] = true;
                 if (element == field) {
+                    branchCoverage[19] = true;
                     //This is our field... we stop looping
                     if (modType == ModifyType.CEILING || modType == ModifyType.ROUND && roundUp) {
+                        branchCoverage[20] = true;
                         if (field == SEMI_MONTH) {
+                            branchCoverage[21] = true;
                             //This is a special case that's hard to generalize
                             //If the date is 1, we round up to 16, otherwise
                             //  we subtract 15 days and add 1 month
                             if (val.get(Calendar.DATE) == 1) {
+                                branchCoverage[22] = true;
                                 val.add(Calendar.DATE, 15);
                             } else {
+                                branchCoverage[23] = true;
                                 val.add(Calendar.DATE, -15);
                                 val.add(Calendar.MONTH, 1);
                             }
                         // Fix for LANG-440 START
                         } else if (field == Calendar.AM_PM) {
+                            branchCoverage[24] = true;
                             // This is a special case
                             // If the time is 0, we round up to 12, otherwise
                             //  we subtract 12 hours and add 1 day
                             if (val.get(Calendar.HOUR_OF_DAY) == 0) {
+                                branchCoverage[25] = true;
                                 val.add(Calendar.HOUR_OF_DAY, 12);
                             } else {
+                                branchCoverage[26] = true;
                                 val.add(Calendar.HOUR_OF_DAY, -12);
                                 val.add(Calendar.DATE, 1);
                             }
                             // Fix for LANG-440 END
                         } else {
+                            branchCoverage[27] = true;
                             //We need at add one to this field since the
                             //  last number causes us to round up
                             val.add(aField[0], 1);
                         }
+                    } else {
+                        branchCoverage[28] = true;
                     }
                     return val;
+                } else {
+                    branchCoverage[29] = true;
                 }
             }
             //We have various fields that are not easy roundings
@@ -1184,7 +1226,9 @@ public class DateUtils {
             //These are special types of fields that require different rounding rules
             switch (field) {
                 case SEMI_MONTH:
+                branchCoverage[30] = true;
                     if (aField[0] == Calendar.DATE) {
+                        branchCoverage[31] = true;
                         //If we're going to drop the DATE field's value,
                         //  we want to do this our own way.
                         //We need to subtract 1 since the date has a minimum of 1
@@ -1192,39 +1236,58 @@ public class DateUtils {
                         //If we're above 15 days adjustment, that means we're in the
                         //  bottom half of the month and should stay accordingly.
                         if (offset >= 15) {
+                            branchCoverage[32] = true;
                             offset -= 15;
+                        } else {
+                            branchCoverage[33] = true;
                         }
                         //Record whether we're in the top or bottom half of that range
                         roundUp = offset > 7;
                         offsetSet = true;
+                    } else {
+                        branchCoverage[34] = true;
                     }
                     break;
                 case Calendar.AM_PM:
+                branchCoverage[35] = true;
                     if (aField[0] == Calendar.HOUR_OF_DAY) {
+                        branchCoverage[36] = true;
                         //If we're going to drop the HOUR field's value,
                         //  we want to do this our own way.
                         offset = val.get(Calendar.HOUR_OF_DAY);
                         if (offset >= 12) {
+                            branchCoverage[37] = true;
                             offset -= 12;
+                        } else {
+                            branchCoverage[38] = true;
                         }
                         roundUp = offset >= 6;
                         offsetSet = true;
+                    } else {
+                        branchCoverage[39] = true;
                     }
                     break;
                 default:
+                branchCoverage[40] = true;
                     break;
             }
             if (!offsetSet) {
+                branchCoverage[41] = true;
                 final int min = val.getActualMinimum(aField[0]);
                 final int max = val.getActualMaximum(aField[0]);
                 //Calculate the offset from the minimum allowed value
                 offset = val.get(aField[0]) - min;
                 //Set roundUp if this is more than half way between the minimum and maximum
                 roundUp = offset > (max - min) / 2;
+            } else {
+                branchCoverage[42] = true;
             }
             //We need to remove this field
             if (offset != 0) {
+                branchCoverage[43] = true;
                 val.set(aField[0], val.get(aField[0]) - offset);
+            } else {
+                branchCoverage[44] = true;
             }
         }
         throw new IllegalArgumentException("The field " + field + " is not supported");

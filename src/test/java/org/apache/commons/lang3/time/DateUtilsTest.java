@@ -37,6 +37,7 @@ import java.util.NoSuchElementException;
 import java.util.TimeZone;
 
 import org.apache.commons.lang3.AbstractLangTest;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,6 +54,7 @@ public class DateUtilsTest extends AbstractLangTest {
 
     private static Date BASE_DATE;
     private static TimeZone DEFAULT_ZONE;
+    private static DateUtils dateUtils;
 
     /**
      * Used to check that Calendar objects are close enough
@@ -1697,5 +1699,18 @@ public class DateUtilsTest extends AbstractLangTest {
         }
     }
 
+    @AfterAll
+    public static void printBranchCoverage() {
+        int visited = 0;
+        for (int i = 0; i < 45; i++) {
+            if (dateUtils.branchCoverage[i]) {
+                visited++;
+            }
+            else {
+                System.out.println("Branch " + i + " not visited.");
+            }
+        }
+        System.out.println("Branch Coverage: " + visited + "/45 = " + (100.0*visited/45) + "%");
+    }
 }
 
