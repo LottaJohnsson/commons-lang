@@ -336,22 +336,7 @@ public class NumberUtils {
             }
         }
         if (pfxLen > 0) { // we have a hex number
-            char firstSigDigit = 0; // strip leading zeroes
-            for (int i = pfxLen; i < length; i++) {
-                firstSigDigit = str.charAt(i);
-                if (firstSigDigit != '0') {
-                    break;
-                }
-                pfxLen++;
-            }
-            final int hexDigits = length - pfxLen;
-            if (hexDigits > 16 || hexDigits == 16 && firstSigDigit > '7') { // too many for Long
-                return createBigInteger(str);
-            }
-            if (hexDigits > 8 || hexDigits == 8 && firstSigDigit > '7') { // too many for an int
-                return createLong(str);
-            }
-            return createInteger(str);
+            return createNumberFromHex(pfxLen, str);
         }
         final char lastChar = str.charAt(length - 1);
         final String mant;
@@ -388,62 +373,8 @@ public class NumberUtils {
             dec = null;
         }
         if (requestType) {
-            if (expPos > -1 && expPos < length - 1) {
-                exp = str.substring(expPos + 1, length - 1);
-            } else {
-                exp = null;
-            }
-            //Requesting a specific type.
-            final String numeric = str.substring(0, length - 1);
-            switch (lastChar) {
-                case 'l' :
-                case 'L' :
-                    if (dec == null
-                        && exp == null
-                        && (!numeric.isEmpty() && numeric.charAt(0) == '-' && isDigits(numeric.substring(1)) || isDigits(numeric))) {
-                        try {
-                            return createLong(numeric);
-                        } catch (final NumberFormatException ignored) {
-                            // Too big for a long
-                        }
-                        return createBigInteger(numeric);
-
-                    }
-                    throw new NumberFormatException(str + " is not a valid number.");
-                case 'f' :
-                case 'F' :
-                    try {
-                        final Float f = createFloat(str);
-                        if (!(f.isInfinite() || f.floatValue() == 0.0F && !isZero(mant, dec))) {
-                            //If it's too big for a float or the float value = 0 and the string
-                            //has non-zeros in it, then float does not have the precision we want
-                            return f;
-                        }
-
-                    } catch (final NumberFormatException ignored) {
-                        // ignore the bad number
-                    }
-                    //$FALL-THROUGH$
-                case 'd' :
-                case 'D' :
-                    try {
-                        final Double d = createDouble(str);
-                        if (!(d.isInfinite() || d.doubleValue() == 0.0D && !isZero(mant, dec))) {
-                            return d;
-                        }
-                    } catch (final NumberFormatException ignored) {
-                        // ignore the bad number
-                    }
-                    try {
-                        return createBigDecimal(numeric);
-                    } catch (final NumberFormatException ignored) {
-                        // ignore the bad number
-                    }
-                    //$FALL-THROUGH$
-                default :
-                    throw new NumberFormatException(str + " is not a valid number.");
-
-            }
+            //Creates the requested type of Number
+            return createNumberFromRequest(expPos, dec, lastChar, mant, str);
         }
         //User doesn't have a preference on the return type, so let's start
         //small and go from there...
@@ -454,20 +385,40 @@ public class NumberUtils {
         }
         if (dec == null && exp == null) { // no decimal point and no exponent
             //Must be an Integer, Long, Biginteger
-            try {
-                return createInteger(str);
-            } catch (final NumberFormatException ignored) {
-                // ignore the bad number
-            }
-            try {
-                return createLong(str);
-            } catch (final NumberFormatException ignored) {
-                // ignore the bad number
-            }
-            return createBigInteger(str);
+            return createIntegerLongOrBigInteger(str);
         }
 
         //Must be a Float, Double, BigDecimal
+        return createFloatDoubleOrBigDecimal(mant, dec, str);
+    }
+
+    /**
+     * Utility function for {@link #createNumber(java.lang.String)}.
+     * @param str the string representation of the number
+     * @return Number of type Integer, Long, BigInteger
+     */
+    private static Number createIntegerLongOrBigInteger(String str){
+        try {
+            return createInteger(str);
+        } catch (final NumberFormatException ignored) {
+            // ignore the bad number
+        }
+        try {
+            return createLong(str);
+        } catch (final NumberFormatException ignored) {
+            // ignore the bad number
+        }
+        return createBigInteger(str);
+    }
+
+    /**
+     * Utility function for {@link #createNumber(java.lang.String)}.
+     * @param mant mantissa of the number
+     * @param dec the string representation of the decimals of the number
+     * @param str the string representation of the number
+     * @return Number of type Float, Double, BigDecimal
+     */
+    private static Number createFloatDoubleOrBigDecimal(String mant, String dec, String str){
         try {
             final Float f = createFloat(str);
             final Double d = createDouble(str);
@@ -487,6 +438,104 @@ public class NumberUtils {
             // ignore the bad number
         }
         return createBigDecimal(str);
+    }
+
+    /**
+     * Utility function for {@link #createNumber(java.lang.String)}.
+     * @param expPos exponent of the number
+     * @param dec the string representation of the decimals of the number
+     * @param lastChar the last character of the number
+     * @param mant mantissa of the number
+     * @param str the string representation of the number
+     * @return Number or requested type: Long, BigInteger, Float, Double or BigDecimal
+     * @throws NumberFormatException if the format is incorrect
+     */
+    private static Number createNumberFromRequest(int expPos, String dec, char lastChar, String mant, String str){
+        final int length = str.length();
+        final String exp;
+        if (expPos > -1 && expPos < length - 1) {
+            exp = str.substring(expPos + 1, length - 1);
+        } else {
+            exp = null;
+        }
+        //Requesting a specific type.
+        final String numeric = str.substring(0, length - 1);
+        switch (lastChar) {
+            case 'l' :
+            case 'L' :
+                if (dec == null
+                        && exp == null
+                        && (!numeric.isEmpty() && numeric.charAt(0) == '-' && isDigits(numeric.substring(1)) || isDigits(numeric))) {
+                    try {
+                        return createLong(numeric);
+                    } catch (final NumberFormatException ignored) {
+                        // Too big for a long
+                    }
+                    return createBigInteger(numeric);
+
+                }
+                throw new NumberFormatException(str + " is not a valid number.");
+            case 'f' :
+            case 'F' :
+                try {
+                    final Float f = createFloat(str);
+                    if (!(f.isInfinite() || f.floatValue() == 0.0F && !isZero(mant, dec))) {
+                        //If it's too big for a float or the float value = 0 and the string
+                        //has non-zeros in it, then float does not have the precision we want
+                        return f;
+                    }
+
+                } catch (final NumberFormatException ignored) {
+                    // ignore the bad number
+
+                }
+                //$FALL-THROUGH$
+            case 'd' :
+            case 'D' :
+                try {
+                    final Double d = createDouble(str);
+                    if (!(d.isInfinite() || d.doubleValue() == 0.0D && !isZero(mant, dec))) {
+                        return d;
+                    }
+                } catch (final NumberFormatException ignored) {
+                    // ignore the bad number
+                }
+                try {
+                    return createBigDecimal(numeric);
+                } catch (final NumberFormatException ignored) {
+                    // ignore the bad number
+                }
+                //$FALL-THROUGH$
+            default :
+                throw new NumberFormatException(str + " is not a valid number.");
+        }
+    }
+
+
+    /**
+     * Utility function for {@link #createNumber(java.lang.String)}.
+     * @param pfxLen length of the hex prefix
+     * @param str string representation of the number in hex
+     * @return Number of type: Long, Integer or BigInteger
+     */
+    private static Number createNumberFromHex(int pfxLen, String str){
+        char firstSigDigit = 0; // strip leading zeroes
+        int length = str.length();
+        for (int i = pfxLen; i < length; i++) {
+            firstSigDigit = str.charAt(i);
+            if (firstSigDigit != '0') {
+                break;
+            }
+            pfxLen++;
+        }
+        final int hexDigits = length - pfxLen;
+        if (hexDigits > 16 || hexDigits == 16 && firstSigDigit > '7') { // too many for Long
+            return createBigInteger(str);
+        }
+        if (hexDigits > 8 || hexDigits == 8 && firstSigDigit > '7') { // too many for an int
+            return createLong(str);
+        }
+        return createInteger(str);
     }
 
      /**
