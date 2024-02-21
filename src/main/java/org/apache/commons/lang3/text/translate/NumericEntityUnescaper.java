@@ -56,7 +56,8 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
     }
 
     // TODO?: Create an OptionsSet class to hide some of the conditional logic below
-    private final EnumSet<OPTION> options;
+    public final EnumSet<OPTION> options;
+    public boolean[] flags = new boolean[26];
 
     /**
      * Create a UnicodeUnescaper.
@@ -97,7 +98,6 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
      */
     @Override
     public int translate(final CharSequence input, final int index, final Writer out) throws IOException {
-        boolean[] flags = new boolean[25];
         flags[0] = true;
         final int seqEnd = input.length();
         // Uses -2 to ensure there is something after the &#

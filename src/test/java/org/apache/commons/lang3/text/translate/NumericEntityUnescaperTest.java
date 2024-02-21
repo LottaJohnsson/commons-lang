@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.apache.commons.lang3.AbstractLangTest;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -29,10 +31,9 @@ import org.junit.jupiter.api.Test;
 @Deprecated
 public class NumericEntityUnescaperTest extends AbstractLangTest {
 
+    final static NumericEntityUnescaper neu = new NumericEntityUnescaper();
     @Test
     public void testOutOfBounds() {
-        final NumericEntityUnescaper neu = new NumericEntityUnescaper();
-
         assertEquals("Test &", neu.translate("Test &"), "Failed to ignore when last character is &");
         assertEquals("Test &#", neu.translate("Test &#"), "Failed to ignore when last character is &");
         assertEquals("Test &#x", neu.translate("Test &#x"), "Failed to ignore when last character is &");
@@ -41,7 +42,6 @@ public class NumericEntityUnescaperTest extends AbstractLangTest {
 
     @Test
     public void testSupplementaryUnescaping() {
-        final NumericEntityUnescaper neu = new NumericEntityUnescaper();
         final String input = "&#68642;";
         final String expected = "\uD803\uDC22";
 
@@ -52,26 +52,46 @@ public class NumericEntityUnescaperTest extends AbstractLangTest {
     @Test
     public void testUnfinishedEntity() {
         // parse it
-        NumericEntityUnescaper neu = new NumericEntityUnescaper(NumericEntityUnescaper.OPTION.semiColonOptional);
+
+        NumericEntityUnescaper neuWithOptions = new NumericEntityUnescaper(NumericEntityUnescaper.OPTION.semiColonOptional);
+        neuWithOptions.flags = neu.flags;
+
         String input = "Test &#x30 not test";
         String expected = "Test \u0030 not test";
 
-        String result = neu.translate(input);
+        String result = neuWithOptions.translate(input);
         assertEquals(expected, result, "Failed to support unfinished entities (i.e. missing semicolon)");
 
         // ignore it
-        neu = new NumericEntityUnescaper();
         input = "Test &#x30 not test";
         expected = input;
 
         result = neu.translate(input);
+        neu.flags = neuWithOptions.flags;;
         assertEquals(expected, result, "Failed to ignore unfinished entities (i.e. missing semicolon)");
 
         // fail it
         final NumericEntityUnescaper failingNeu =
                 new NumericEntityUnescaper(NumericEntityUnescaper.OPTION.errorIfNoSemiColon);
+        failingNeu.flags = neu.flags;
         final String failingInput = "Test &#x30 not test";
         assertThrows(IllegalArgumentException.class, () -> failingNeu.translate(failingInput));
+        neu.flags = failingNeu.flags;
     }
 
+    @AfterAll
+    public static void tearDown() {
+        int numBranchVisited = 0;
+        int i = 0;
+        for (Boolean b : neu.flags) {
+            if (b) {
+                numBranchVisited++;
+            } else {
+                System.out.println("Branch nr: " + i + " never taken");
+            }
+            i++;
+        }
+        System.out.println("Number of branches visited: " + numBranchVisited);
+        System.out.println("Branch Coverage: " + numBranchVisited/26.0000);
+    }
 }
