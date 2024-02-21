@@ -763,6 +763,80 @@ public class DateUtilsTest extends AbstractLangTest {
     }
 
     @Test
+    public void testIsSameLocalTime_millsecondReturnFalse() {
+        final GregorianCalendar cala = new GregorianCalendar(TimeZone.getTimeZone("GMT+1"));
+        final GregorianCalendar calb = new GregorianCalendar(TimeZone.getTimeZone("GMT-1"));
+        cala.set(2004, Calendar.JULY, 9, 13, 45, 0);
+        cala.set(Calendar.MILLISECOND, 1);
+        calb.set(2004, Calendar.JULY, 9, 13, 45, 0);
+        calb.set(Calendar.MILLISECOND, 0);
+        assertFalse(DateUtils.isSameLocalTime(cala, calb));
+    }
+
+    @Test
+    public void testIsSameLocalTime_secondReturnFalse() {
+        final GregorianCalendar cala = new GregorianCalendar(TimeZone.getTimeZone("GMT+1"));
+        final GregorianCalendar calb = new GregorianCalendar(TimeZone.getTimeZone("GMT-1"));
+        cala.set(2004, Calendar.JULY, 9, 13, 45, 1);
+        cala.set(Calendar.MILLISECOND, 0);
+        calb.set(2004, Calendar.JULY, 9, 13, 45, 0);
+        calb.set(Calendar.MILLISECOND, 0);
+        assertFalse(DateUtils.isSameLocalTime(cala, calb));
+    }
+
+    @Test
+    public void testIsSameLocalTime_minuteReturnFalse() {
+        final GregorianCalendar cala = new GregorianCalendar(TimeZone.getTimeZone("GMT+1"));
+        final GregorianCalendar calb = new GregorianCalendar(TimeZone.getTimeZone("GMT-1"));
+        cala.set(2004, Calendar.JULY, 9, 13, 46, 0);
+        cala.set(Calendar.MILLISECOND, 0);
+        calb.set(2004, Calendar.JULY, 9, 13, 45, 0);
+        calb.set(Calendar.MILLISECOND, 0);
+        assertFalse(DateUtils.isSameLocalTime(cala, calb));
+    }
+
+    @Test
+    public void testIsSameLocalTime_dayOfyearReturnFalse() {
+        final GregorianCalendar cala = new GregorianCalendar(TimeZone.getTimeZone("GMT+1"));
+        final GregorianCalendar calb = new GregorianCalendar(TimeZone.getTimeZone("GMT-1"));
+        cala.set(2004, Calendar.JULY, 10, 13, 45, 0);
+        cala.set(Calendar.MILLISECOND, 0);
+        calb.set(2004, Calendar.JULY, 9, 13, 45, 0);
+        calb.set(Calendar.MILLISECOND, 0);
+        assertFalse(DateUtils.isSameLocalTime(cala, calb));
+    }
+
+    @Test
+    public void testIsSameLocalTime_yearReturnFalse() {
+        final GregorianCalendar cala = new GregorianCalendar(TimeZone.getTimeZone("GMT+1"));
+        final GregorianCalendar calb = new GregorianCalendar(TimeZone.getTimeZone("GMT-1"));
+        cala.set(2014, Calendar.JANUARY, 1, 13, 45, 0);
+        cala.set(Calendar.MILLISECOND, 0);
+        cala.set(Calendar.DAY_OF_YEAR, 1);
+        cala.set(Calendar.MILLISECOND, 0);
+        calb.set(2004, Calendar.JANUARY, 1, 13, 45, 0);
+        calb.set(Calendar.MILLISECOND, 0);
+        calb.set(Calendar.DAY_OF_YEAR, 1);
+        calb.set(Calendar.MILLISECOND, 0);
+        assertFalse(DateUtils.isSameLocalTime(cala, calb));
+    }
+
+    @Test
+    public void testIsSameLocalTime_eraReturnFalse() {
+        final GregorianCalendar cala = new GregorianCalendar(TimeZone.getTimeZone("GMT+1"));
+        final GregorianCalendar calb = new GregorianCalendar(TimeZone.getTimeZone("GMT-1"));
+        cala.set(2004, Calendar.JANUARY, 1, 13, 45, 0);
+        cala.set(Calendar.MILLISECOND, 0);
+        cala.set(Calendar.DAY_OF_YEAR, 1);
+        cala.set(Calendar.ERA, GregorianCalendar.AD);
+        calb.set(2004, Calendar.JANUARY, 1, 13, 45, 0);
+        calb.set(Calendar.MILLISECOND, 0);
+        calb.set(Calendar.DAY_OF_YEAR, 1);
+        calb.set(Calendar.ERA, GregorianCalendar.BC);
+        assertFalse(DateUtils.isSameLocalTime(cala, calb));
+    }
+
+    @Test
     public void testIsSameLocalTime_CalNotNullNull() {
         assertThrows(NullPointerException.class, () -> DateUtils.isSameLocalTime(Calendar.getInstance(), null));
     }
