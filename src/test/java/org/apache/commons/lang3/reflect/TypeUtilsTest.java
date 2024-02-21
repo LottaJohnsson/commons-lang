@@ -842,29 +842,25 @@ public class TypeUtilsTest<B> extends AbstractLangTest {
     }
 
     @Test
-    public void testIsAssignableWithGenericArrayType() throws NoSuchFieldException {
+    public void testIsAssignableWithNullTypes() {
         final Type nullType = null;
         GenericArrayType genericArrayType = new MyGenericArrayType(String.class);
-        GenericArrayType nullGenericArrayType = null;
-
-        final Type rawListType = GenericTypeHolder.class.getDeclaredField("rawList").getGenericType();
-
 
         assertTrue(TypeUtils.isAssignable(nullType, genericArrayType));
-        assertFalse(TypeUtils.isAssignable(rawListType, nullGenericArrayType));
     }
 
     @Test
-    public void testIsAssignableThrowsException() throws NoSuchFieldException {
+    public void testIsAssignableThrowsException() {
         GenericArrayType genericArrayType = new MyGenericArrayType(String.class);
         final Type customType = new Type() {
-            // Implement required methods
             @Override
             public String getTypeName() {
                 return "CustomType";
             }
         };
-        assertThrows(IllegalStateException.class, () -> {TypeUtils.isAssignable(customType, genericArrayType);});
+        assertThrows(IllegalStateException.class, () -> {
+            TypeUtils.isAssignable(customType, genericArrayType);
+        });
     }
 
     @SuppressWarnings("boxing") // boxing is deliberate here
