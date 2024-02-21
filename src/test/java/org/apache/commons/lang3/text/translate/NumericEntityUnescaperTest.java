@@ -92,6 +92,6 @@ public class NumericEntityUnescaperTest extends AbstractLangTest {
             i++;
         }
         System.out.println("Number of branches visited: " + numBranchVisited);
-        System.out.println("Branch Coverage: " + numBranchVisited/26.0000);
+        System.out.println("Branch Coverage: " + numBranchVisited/31.0000);
     }
 }

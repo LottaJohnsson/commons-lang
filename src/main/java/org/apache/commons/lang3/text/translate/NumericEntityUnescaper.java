@@ -57,7 +57,7 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
 
     // TODO?: Create an OptionsSet class to hide some of the conditional logic below
     private final EnumSet<OPTION> options;
-    public boolean[] flags = new boolean[26];
+    public boolean[] flags = new boolean[31];
 
     /**
      * Create a UnicodeUnescaper.
