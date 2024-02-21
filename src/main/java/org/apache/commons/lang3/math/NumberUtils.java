@@ -318,37 +318,40 @@ public class NumberUtils {
      * @throws NumberFormatException if the value cannot be converted
      */
     public static Number createNumber(final String str) {
-        if (str == null) {
-            return null;
+
+        // + 1
+
+        if (str == null) { // + 1
+            return null; // + 1 exit point
         }
-        if (StringUtils.isBlank(str)) {
-            throw new NumberFormatException("A blank string is not a valid number");
+        if (StringUtils.isBlank(str)) { // + 1
+            throw new NumberFormatException("A blank string is not a valid number"); // + 1 exit point
         }
         // Need to deal with all possible hex prefixes here
         final String[] hexPrefixes = {"0x", "0X", "#"};
         final int length = str.length();
-        final int offset = str.charAt(0) == '+' || str.charAt(0) == '-' ? 1 : 0;
+        final int offset = str.charAt(0) == '+' || str.charAt(0) == '-' ? 1 : 0; // + 2
         int pfxLen = 0;
-        for (final String pfx : hexPrefixes) {
-            if (str.startsWith(pfx, offset)) {
+        for (final String pfx : hexPrefixes) { // + 1
+            if (str.startsWith(pfx, offset)) { // + 1
                 pfxLen += pfx.length() + offset;
                 break;
             }
         }
-        if (pfxLen > 0) { // we have a hex number
+        if (pfxLen > 0) { // we have a hex number   // + 1
             char firstSigDigit = 0; // strip leading zeroes
-            for (int i = pfxLen; i < length; i++) {
+            for (int i = pfxLen; i < length; i++) {  // + 1
                 firstSigDigit = str.charAt(i);
-                if (firstSigDigit != '0') {
+                if (firstSigDigit != '0') {     // + 1
                     break;
                 }
                 pfxLen++;
             }
             final int hexDigits = length - pfxLen;
-            if (hexDigits > 16 || hexDigits == 16 && firstSigDigit > '7') { // too many for Long
+            if (hexDigits > 16 || hexDigits == 16 && firstSigDigit > '7') { // too many for Long  // + 3
                 return createBigInteger(str);
             }
-            if (hexDigits > 8 || hexDigits == 8 && firstSigDigit > '7') { // too many for an int
+            if (hexDigits > 8 || hexDigits == 8 && firstSigDigit > '7') { // too many for an int   // + 3
                 return createLong(str);
             }
             return createInteger(str);
@@ -363,44 +366,44 @@ public class NumberUtils {
         // and the parsing which will detect if e or E appear in a number due to using the wrong offset
 
         // Detect if the return type has been requested
-        final boolean requestType = !Character.isDigit(lastChar) && lastChar != '.';
-        if (decPos > -1) { // there is a decimal point
-            if (expPos > -1) { // there is an exponent
-                if (expPos <= decPos || expPos > length) { // prevents double exponent causing IOOBE
-                    throw new NumberFormatException(str + " is not a valid number.");
+        final boolean requestType = !Character.isDigit(lastChar) && lastChar != '.'; // + 1
+        if (decPos > -1) { // there is a decimal point  // + 1
+            if (expPos > -1) { // there is an exponent  // + 1
+                if (expPos <= decPos || expPos > length) { // prevents double exponent causing IOOBE // + 2
+                    throw new NumberFormatException(str + " is not a valid number."); // + 1 exit point
                 }
                 dec = str.substring(decPos + 1, expPos);
-            } else {
+            } else {    // + 1
                 // No exponent, but there may be a type character to remove
-                dec = str.substring(decPos + 1, requestType ? length - 1 : length);
+                dec = str.substring(decPos + 1, requestType ? length - 1 : length); // + 1
             }
             mant = getMantissa(str, decPos);
-        } else {
-            if (expPos > -1) {
-                if (expPos > length) { // prevents double exponent causing IOOBE
-                    throw new NumberFormatException(str + " is not a valid number.");
+        } else {    // + 1
+            if (expPos > -1) {  // + 1
+                if (expPos > length) { // prevents double exponent causing IOOBE    // + 1
+                    throw new NumberFormatException(str + " is not a valid number.");   // + 1 exit point
                 }
                 mant = getMantissa(str, expPos);
-            } else {
+            } else { // + 1
                 // No decimal, no exponent, but there may be a type character to remove
-                mant = getMantissa(str, requestType ? length - 1 : length);
+                mant = getMantissa(str, requestType ? length - 1 : length); // + 1
             }
             dec = null;
         }
-        if (requestType) {
-            if (expPos > -1 && expPos < length - 1) {
+        if (requestType) {  // + 1
+            if (expPos > -1 && expPos < length - 1) {   // + 2
                 exp = str.substring(expPos + 1, length - 1);
-            } else {
+            } else {    // + 1
                 exp = null;
             }
             //Requesting a specific type.
             final String numeric = str.substring(0, length - 1);
             switch (lastChar) {
-                case 'l' :
-                case 'L' :
+                case 'l' :  // + 1
+                case 'L' :  // + 1
                     if (dec == null
                         && exp == null
-                        && (!numeric.isEmpty() && numeric.charAt(0) == '-' && isDigits(numeric.substring(1)) || isDigits(numeric))) {
+                        && (!numeric.isEmpty() && numeric.charAt(0) == '-' && isDigits(numeric.substring(1)) || isDigits(numeric))) { // + 6
                         try {
                             return createLong(numeric);
                         } catch (final NumberFormatException ignored) {
@@ -409,12 +412,12 @@ public class NumberUtils {
                         return createBigInteger(numeric);
 
                     }
-                    throw new NumberFormatException(str + " is not a valid number.");
-                case 'f' :
-                case 'F' :
+                    throw new NumberFormatException(str + " is not a valid number."); // + 1 exit point
+                case 'f' :  // + 1
+                case 'F' :  // + 1
                     try {
                         final Float f = createFloat(str);
-                        if (!(f.isInfinite() || f.floatValue() == 0.0F && !isZero(mant, dec))) {
+                        if (!(f.isInfinite() || f.floatValue() == 0.0F && !isZero(mant, dec))) {    // + 3
                             //If it's too big for a float or the float value = 0 and the string
                             //has non-zeros in it, then float does not have the precision we want
                             return f;
@@ -424,11 +427,11 @@ public class NumberUtils {
                         // ignore the bad number
                     }
                     //$FALL-THROUGH$
-                case 'd' :
-                case 'D' :
+                case 'd' :  // + 1
+                case 'D' :  // + 1
                     try {
                         final Double d = createDouble(str);
-                        if (!(d.isInfinite() || d.doubleValue() == 0.0D && !isZero(mant, dec))) {
+                        if (!(d.isInfinite() || d.doubleValue() == 0.0D && !isZero(mant, dec))) {   // + 3
                             return d;
                         }
                     } catch (final NumberFormatException ignored) {
@@ -440,19 +443,19 @@ public class NumberUtils {
                         // ignore the bad number
                     }
                     //$FALL-THROUGH$
-                default :
+                default :   // + 1
                     throw new NumberFormatException(str + " is not a valid number.");
 
             }
         }
         //User doesn't have a preference on the return type, so let's start
         //small and go from there...
-        if (expPos > -1 && expPos < length - 1) {
+        if (expPos > -1 && expPos < length - 1) {   // + 2
             exp = str.substring(expPos + 1);
-        } else {
+        } else {    // + 1
             exp = null;
         }
-        if (dec == null && exp == null) { // no decimal point and no exponent
+        if (dec == null && exp == null) { // no decimal point and no exponent   // + 2
             //Must be an Integer, Long, Biginteger
             try {
                 return createInteger(str);
@@ -472,13 +475,13 @@ public class NumberUtils {
             final Float f = createFloat(str);
             final Double d = createDouble(str);
             if (!f.isInfinite()
-                    && !(f.floatValue() == 0.0F && !isZero(mant, dec))
+                    && !(f.floatValue() == 0.0F && !isZero(mant, dec))      // + 4
                     && f.toString().equals(d.toString())) {
                 return f;
             }
-            if (!d.isInfinite() && !(d.doubleValue() == 0.0D && !isZero(mant, dec))) {
+            if (!d.isInfinite() && !(d.doubleValue() == 0.0D && !isZero(mant, dec))) {  // + 3
                 final BigDecimal b = createBigDecimal(str);
-                if (b.compareTo(BigDecimal.valueOf(d.doubleValue())) == 0) {
+                if (b.compareTo(BigDecimal.valueOf(d.doubleValue())) == 0) { // + 1
                     return d;
                 }
                 return b;
