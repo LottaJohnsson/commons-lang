@@ -445,4 +445,24 @@ public class FastDatePrinterTest extends AbstractLangTest {
         assertEquals("2021", printer4DigitAnotherFallback.format(cal));
         assertEquals("21", printer2Digits.format(cal));
     }
+
+    // Cover requirement that equals method returns false for all negative branches
+    @Test
+    public void testFullNegativeBranchesEquals() {
+        FastDatePrinter p1 = new FastDatePrinter(YYYY_MM_DD, NEW_YORK, Locale.US);
+        FastDatePrinter p2 = new FastDatePrinter(YYYY_MM_DD, INDIA, Locale.US);
+        FastDatePrinter p3 = new FastDatePrinter(YYYY_MM_DD, NEW_YORK, new Locale("sv", "SE"));
+        assertNotEquals(p1, p2);
+        assertNotEquals(p1, p3);
+        assertNotEquals(p2, p3);
+    }
+
+    // Cover requirement that invalid Object input to format methods throws IllegalArgumentException
+    @Test
+    public void testFormatInvalidObject() {
+        final FastDatePrinter printer = new FastDatePrinter(YYYY_MM_DD, NEW_YORK, Locale.US);
+        assertThrows(IllegalArgumentException.class, () -> printer.format(new Object()));
+        assertThrows(IllegalArgumentException.class, () -> printer.format(new Object(), new StringBuffer(), new FieldPosition(0))); //check
+    }
+
 }
