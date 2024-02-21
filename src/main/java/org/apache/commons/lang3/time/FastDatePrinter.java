@@ -1318,6 +1318,37 @@ public class FastDatePrinter implements DatePrinter, Serializable {
         return Calendar.getInstance(timeZone, locale);
     }
 
+    /**
+     * Returns a HashMap with mapping from character to function for creating Rule
+     */
+    protected ConcurrentHashMap<Character, Function<Integer, Rule>> getRulesMapping(String[] ERAs, String[] months, String[] shortMonths, String[] weekdays, String[] shortWeekdays, String[] AmPmStrings) {
+        ConcurrentHashMap<Character, Function<Integer, Rule>> rulesMapping = new ConcurrentHashMap<>();
+        rulesMapping.put('G', (tokenLen) -> new TextField(Calendar.ERA, ERAs)); // era designator (text)
+        rulesMapping.put('y', (tokenLen) -> tokenLen == 2 ? TwoDigitYearField.INSTANCE : selectNumberRule(Calendar.YEAR, Math.max(tokenLen, 4))); // year (number)
+        rulesMapping.put('Y', (tokenLen) -> new WeekYear((NumberRule) (tokenLen == 2 ? TwoDigitYearField.INSTANCE : selectNumberRule(Calendar.YEAR, Math.max(tokenLen, 4))))); // week year
+        rulesMapping.put('M', (tokenLen) -> tokenLen >= 3 ? new TextField(Calendar.MONTH, tokenLen == 3 ? shortMonths : months) : tokenLen == 2 ? TwoDigitMonthField.INSTANCE : UnpaddedMonthField.INSTANCE); // month in year (text and number)
+        rulesMapping.put('L', (tokenLen) -> tokenLen >= 3 ? new TextField(Calendar.MONTH, tokenLen == 3 ? CalendarUtils.getInstance(locale).getStandaloneShortMonthNames() : CalendarUtils.getInstance(locale).getStandaloneLongMonthNames()) : tokenLen == 2 ? TwoDigitMonthField.INSTANCE : UnpaddedMonthField.INSTANCE); // month in year (text and number)
+        rulesMapping.put('d', (tokenLen) -> selectNumberRule(Calendar.DAY_OF_MONTH, tokenLen)); // day in month (number)
+        rulesMapping.put('h', (tokenLen) -> new TwelveHourField(selectNumberRule(Calendar.HOUR, tokenLen))); // hour in am/pm (number, 1..12)
+        rulesMapping.put('H', (tokenLen) -> selectNumberRule(Calendar.HOUR_OF_DAY, tokenLen)); // hour in day (number, 0..23)
+        rulesMapping.put('m', (tokenLen) -> selectNumberRule(Calendar.MINUTE, tokenLen)); // minute in hour (number)
+        rulesMapping.put('s', (tokenLen) -> selectNumberRule(Calendar.SECOND, tokenLen)); // second in minute (number)
+        rulesMapping.put('S', (tokenLen) -> selectNumberRule(Calendar.MILLISECOND, tokenLen)); // millisecond (number)
+        rulesMapping.put('E', (tokenLen) -> new TextField(Calendar.DAY_OF_WEEK, tokenLen < 4 ? shortWeekdays : weekdays)); // day in week (text)
+        rulesMapping.put('u', (tokenLen) -> new DayInWeekField(selectNumberRule(Calendar.DAY_OF_WEEK, tokenLen))); // day in week (number)
+        rulesMapping.put('D', (tokenLen) -> selectNumberRule(Calendar.DAY_OF_YEAR, tokenLen)); // day in year (number)
+        rulesMapping.put('F', (tokenLen) -> selectNumberRule(Calendar.DAY_OF_WEEK_IN_MONTH, tokenLen)); // day of week in month (number)
+        rulesMapping.put('w', (tokenLen) -> selectNumberRule(Calendar.WEEK_OF_YEAR, tokenLen)); // week in year (number)
+        rulesMapping.put('W', (tokenLen) -> selectNumberRule(Calendar.WEEK_OF_MONTH, tokenLen)); // week in month (number)
+        rulesMapping.put('a', (tokenLen) -> new TextField(Calendar.AM_PM, AmPmStrings)); // am/pm marker (text)
+        rulesMapping.put('k', (tokenLen) -> new TwentyFourHourField(selectNumberRule(Calendar.HOUR_OF_DAY, tokenLen))); // hour in day (1..24)
+        rulesMapping.put('K', (tokenLen) -> selectNumberRule(Calendar.HOUR, tokenLen)); // hour in am/pm (0..11)
+        rulesMapping.put('X', (tokenLen) -> Iso8601_Rule.getRule(tokenLen)); // ISO 8601
+        rulesMapping.put('z', (tokenLen) -> new TimeZoneNameRule(timeZone, locale, tokenLen < 4 ? TimeZone.SHORT : TimeZone.LONG)); // time zone (text)
+        rulesMapping.put('Z', (tokenLen) -> tokenLen == 1 ? TimeZoneNumberRule.INSTANCE_NO_COLON : tokenLen == 2 ? Iso8601_Rule.ISO8601_HOURS_COLON_MINUTES : TimeZoneNumberRule.INSTANCE_COLON); // time zone (value)
+        return rulesMapping;
+    }
+
     // Parse the pattern
     /**
      * Returns a list of Rules given a pattern.
@@ -1339,31 +1370,6 @@ public class FastDatePrinter implements DatePrinter, Serializable {
         final int length = pattern.length();
         final int[] indexRef = new int[1];
 
-        ConcurrentHashMap<Character, Function<Integer, Rule>> rulesMapping = new ConcurrentHashMap<>();
-        rulesMapping.put('G', (tokenLen) -> new TextField(Calendar.ERA, ERAs)); // era designator (text)
-        rulesMapping.put('y', (tokenLen) -> tokenLen == 2 ? TwoDigitYearField.INSTANCE : selectNumberRule(Calendar.YEAR, Math.max(tokenLen, 4))); // year (number)
-        rulesMapping.put('Y', (tokenLen) -> new WeekYear((NumberRule) (tokenLen == 2 ? TwoDigitYearField.INSTANCE : selectNumberRule(Calendar.YEAR, Math.max(tokenLen, 4))))); // week year
-        rulesMapping.put('M', (tokenLen) -> (tokenLen >= 3 ? (new TextField(Calendar.MONTH, tokenLen == 3 ? shortMonths : months)) : (tokenLen == 2 ? TwoDigitMonthField.INSTANCE : UnpaddedMonthField.INSTANCE))); // month in year (text and number)
-        rulesMapping.put('L', (tokenLen) -> (tokenLen >= 3 ? (new TextField(Calendar.MONTH, tokenLen == 3 ? CalendarUtils.getInstance(locale).getStandaloneShortMonthNames() : CalendarUtils.getInstance(locale).getStandaloneLongMonthNames())) : (tokenLen == 2 ? TwoDigitMonthField.INSTANCE : UnpaddedMonthField.INSTANCE))); // month in year (text and number)
-        rulesMapping.put('d', (tokenLen) -> selectNumberRule(Calendar.DAY_OF_MONTH, tokenLen)); // day in month (number)
-        rulesMapping.put('h', (tokenLen) -> new TwelveHourField(selectNumberRule(Calendar.HOUR, tokenLen))); // hour in am/pm (number, 1..12)
-        rulesMapping.put('H', (tokenLen) -> selectNumberRule(Calendar.HOUR_OF_DAY, tokenLen)); // hour in day (number, 0..23)
-        rulesMapping.put('m', (tokenLen) -> selectNumberRule(Calendar.MINUTE, tokenLen)); // minute in hour (number)
-        rulesMapping.put('s', (tokenLen) -> selectNumberRule(Calendar.SECOND, tokenLen)); // second in minute (number)
-        rulesMapping.put('S', (tokenLen) -> selectNumberRule(Calendar.MILLISECOND, tokenLen)); // millisecond (number)
-        rulesMapping.put('E', (tokenLen) -> new TextField(Calendar.DAY_OF_WEEK, tokenLen < 4 ? shortWeekdays : weekdays)); // day in week (text)
-        rulesMapping.put('u', (tokenLen) -> new DayInWeekField(selectNumberRule(Calendar.DAY_OF_WEEK, tokenLen))); // day in week (number)
-        rulesMapping.put('D', (tokenLen) -> selectNumberRule(Calendar.DAY_OF_YEAR, tokenLen)); // day in year (number)
-        rulesMapping.put('F', (tokenLen) -> selectNumberRule(Calendar.DAY_OF_WEEK_IN_MONTH, tokenLen)); // day of week in month (number)
-        rulesMapping.put('w', (tokenLen) -> selectNumberRule(Calendar.WEEK_OF_YEAR, tokenLen)); // week in year (number)
-        rulesMapping.put('W', (tokenLen) -> selectNumberRule(Calendar.WEEK_OF_MONTH, tokenLen)); // week in month (number)
-        rulesMapping.put('a', (tokenLen) -> new TextField(Calendar.AM_PM, AmPmStrings)); // am/pm marker (text)
-        rulesMapping.put('k', (tokenLen) -> new TwentyFourHourField(selectNumberRule(Calendar.HOUR_OF_DAY, tokenLen))); // hour in day (1..24)
-        rulesMapping.put('K', (tokenLen) -> selectNumberRule(Calendar.HOUR, tokenLen)); // hour in am/pm (0..11)
-        rulesMapping.put('X', (tokenLen) -> Iso8601_Rule.getRule(tokenLen)); // ISO 8601
-        rulesMapping.put('z', (tokenLen) -> new TimeZoneNameRule(timeZone, locale, tokenLen < 4 ? TimeZone.SHORT : TimeZone.LONG)); // time zone (text)
-        rulesMapping.put('Z', (tokenLen) -> (tokenLen == 1 ? TimeZoneNumberRule.INSTANCE_NO_COLON : (tokenLen == 2 ? Iso8601_Rule.ISO8601_HOURS_COLON_MINUTES : TimeZoneNumberRule.INSTANCE_COLON))); // time zone (value)
-
         for (int i = 0; i < length; i++) {
             indexRef[0] = i;
             final String token = parseToken(pattern, indexRef);
@@ -1377,18 +1383,18 @@ public class FastDatePrinter implements DatePrinter, Serializable {
             Rule rule;
             final char c = token.charAt(0);
 
+            ConcurrentHashMap<Character, Function<Integer, Rule>> rulesMapping = getRulesMapping(ERAs, months, shortMonths, weekdays, shortWeekdays, AmPmStrings);
+
             if (rulesMapping.containsKey(c)) {
                 rule = rulesMapping.get(c).apply(tokenLen);
-            }
-            else if (c == '\'') { // literal text
+            } else if (c == '\'') { // literal text
                 final String sub = token.substring(1);
                 if (sub.length() == 1) {
                     rule = new CharacterLiteral(sub.charAt(0));
                 } else {
                     rule = new StringLiteral(sub);
                 }
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("Illegal pattern component: " + token);
             }
             rules.add(rule);
