@@ -1092,11 +1092,13 @@ public class DateUtils {
      * @throws ArithmeticException if the year is over 280 million
      */
     private static Calendar modify(final Calendar val, final int field, final ModifyType modType) {
+        //1
         if (val.get(Calendar.YEAR) > 280000000) {
             throw new ArithmeticException("Calendar value too large for accurate calculations");
         }
 
         if (field == Calendar.MILLISECOND) {
+            //2
             return val;
         }
 
@@ -1113,29 +1115,35 @@ public class DateUtils {
         // truncate milliseconds
         final int millisecs = val.get(Calendar.MILLISECOND);
         if (ModifyType.TRUNCATE == modType || millisecs < 500) {
+            //3,4
             time -= millisecs;
         }
         if (field == Calendar.SECOND) {
+            //5
             done = true;
         }
 
         // truncate seconds
         final int seconds = val.get(Calendar.SECOND);
         if (!done && (ModifyType.TRUNCATE == modType || seconds < 30)) {
+            //6,7,8
             time = time - seconds * 1000L;
         }
         if (field == Calendar.MINUTE) {
+            //9
             done = true;
         }
 
         // truncate minutes
         final int minutes = val.get(Calendar.MINUTE);
         if (!done && (ModifyType.TRUNCATE == modType || minutes < 30)) {
+            //10,11,12
             time = time - minutes * 60000L;
         }
 
         // reset time
         if (date.getTime() != time) {
+            //13
             date.setTime(time);
             val.setTime(date);
         }
@@ -1143,15 +1151,21 @@ public class DateUtils {
 
         boolean roundUp = false;
         for (final int[] aField : fields) {
+            //14
             for (final int element : aField) {
+                //15,16
                 if (element == field) {
+                    //17
                     //This is our field... we stop looping
                     if (modType == ModifyType.CEILING || modType == ModifyType.ROUND && roundUp) {
+                        //18,19,20
                         if (field == SEMI_MONTH) {
+                            //21
                             //This is a special case that's hard to generalize
                             //If the date is 1, we round up to 16, otherwise
                             //  we subtract 15 days and add 1 month
                             if (val.get(Calendar.DATE) == 1) {
+                                //22
                                 val.add(Calendar.DATE, 15);
                             } else {
                                 val.add(Calendar.DATE, -15);
@@ -1159,10 +1173,12 @@ public class DateUtils {
                             }
                         // Fix for LANG-440 START
                         } else if (field == Calendar.AM_PM) {
+                            //23
                             // This is a special case
                             // If the time is 0, we round up to 12, otherwise
                             //  we subtract 12 hours and add 1 day
                             if (val.get(Calendar.HOUR_OF_DAY) == 0) {
+                                //24
                                 val.add(Calendar.HOUR_OF_DAY, 12);
                             } else {
                                 val.add(Calendar.HOUR_OF_DAY, -12);
@@ -1184,7 +1200,9 @@ public class DateUtils {
             //These are special types of fields that require different rounding rules
             switch (field) {
                 case SEMI_MONTH:
+                //25
                     if (aField[0] == Calendar.DATE) {
+                        //26
                         //If we're going to drop the DATE field's value,
                         //  we want to do this our own way.
                         //We need to subtract 1 since the date has a minimum of 1
@@ -1192,6 +1210,7 @@ public class DateUtils {
                         //If we're above 15 days adjustment, that means we're in the
                         //  bottom half of the month and should stay accordingly.
                         if (offset >= 15) {
+                            //27
                             offset -= 15;
                         }
                         //Record whether we're in the top or bottom half of that range
@@ -1200,11 +1219,14 @@ public class DateUtils {
                     }
                     break;
                 case Calendar.AM_PM:
+                //28
                     if (aField[0] == Calendar.HOUR_OF_DAY) {
+                        //29
                         //If we're going to drop the HOUR field's value,
                         //  we want to do this our own way.
                         offset = val.get(Calendar.HOUR_OF_DAY);
                         if (offset >= 12) {
+                            //30
                             offset -= 12;
                         }
                         roundUp = offset >= 6;
@@ -1215,6 +1237,7 @@ public class DateUtils {
                     break;
             }
             if (!offsetSet) {
+                //31
                 final int min = val.getActualMinimum(aField[0]);
                 final int max = val.getActualMaximum(aField[0]);
                 //Calculate the offset from the minimum allowed value
@@ -1224,6 +1247,7 @@ public class DateUtils {
             }
             //We need to remove this field
             if (offset != 0) {
+                //32
                 val.set(aField[0], val.get(aField[0]) - offset);
             }
         }
