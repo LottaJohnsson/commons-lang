@@ -18,6 +18,3 @@ site-content
 .project
 .externalToolBuilders
 .checkstyle
-
-# DS_store
-.DS_store

@@ -33,8 +33,6 @@ import org.apache.commons.lang3.mutable.MutableObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 
 /**
  * Test class for StrSubstitutor.
@@ -43,29 +41,28 @@ import org.junit.jupiter.api.BeforeAll;
 public class StrSubstitutorTest extends AbstractLangTest {
 
     private Map<String, String> values;
-    public static boolean[] flags = new boolean[22];
 
     private void doTestNoReplace(final String replaceTemplate) {
         final StrSubstitutor sub = new StrSubstitutor(values);
 
         if (replaceTemplate == null) {
-            assertNull(sub.replace((String) null, flags));
-            assertNull(sub.replace((String) null, 0, 100, flags));
-            assertNull(sub.replace((char[]) null, flags));
-            assertNull(sub.replace((char[]) null, 0, 100, flags));
-            assertNull(sub.replace((StringBuffer) null, flags));
-            assertNull(sub.replace((StringBuffer) null, 0, 100, flags));
-            assertNull(sub.replace((StrBuilder) null, flags));
-            assertNull(sub.replace((StrBuilder) null, 0, 100, flags));
-            assertNull(sub.replace((Object) null, flags));
-            assertFalse(sub.replaceIn((StringBuffer) null, flags));
-            assertFalse(sub.replaceIn((StringBuffer) null, 0, 100, flags));
-            assertFalse(sub.replaceIn((StrBuilder) null, flags));
-            assertFalse(sub.replaceIn((StrBuilder) null, 0, 100, flags));
+            assertNull(sub.replace((String) null));
+            assertNull(sub.replace((String) null, 0, 100));
+            assertNull(sub.replace((char[]) null));
+            assertNull(sub.replace((char[]) null, 0, 100));
+            assertNull(sub.replace((StringBuffer) null));
+            assertNull(sub.replace((StringBuffer) null, 0, 100));
+            assertNull(sub.replace((StrBuilder) null));
+            assertNull(sub.replace((StrBuilder) null, 0, 100));
+            assertNull(sub.replace((Object) null));
+            assertFalse(sub.replaceIn((StringBuffer) null));
+            assertFalse(sub.replaceIn((StringBuffer) null, 0, 100));
+            assertFalse(sub.replaceIn((StrBuilder) null));
+            assertFalse(sub.replaceIn((StrBuilder) null, 0, 100));
         } else {
-            assertEquals(replaceTemplate, sub.replace(replaceTemplate, flags));
+            assertEquals(replaceTemplate, sub.replace(replaceTemplate));
             final StrBuilder bld = new StrBuilder(replaceTemplate);
-            assertFalse(sub.replaceIn(bld, flags));
+            assertFalse(sub.replaceIn(bld));
             assertEquals(replaceTemplate, bld.toString());
         }
     }
@@ -75,74 +72,73 @@ public class StrSubstitutorTest extends AbstractLangTest {
         final StrSubstitutor sub = new StrSubstitutor(values);
 
         // replace using String
-        assertEquals(expectedResult, sub.replace(replaceTemplate, flags));
+        assertEquals(expectedResult, sub.replace(replaceTemplate));
         if (substring) {
-            assertEquals(expectedShortResult, sub.replace(replaceTemplate, 1, replaceTemplate.length() - 2, flags));
+            assertEquals(expectedShortResult, sub.replace(replaceTemplate, 1, replaceTemplate.length() - 2));
         }
 
         // replace using char[]
         final char[] chars = replaceTemplate.toCharArray();
-        assertEquals(expectedResult, sub.replace(chars, flags));
+        assertEquals(expectedResult, sub.replace(chars));
         if (substring) {
-            assertEquals(expectedShortResult, sub.replace(chars, 1, chars.length - 2, flags));
+            assertEquals(expectedShortResult, sub.replace(chars, 1, chars.length - 2));
         }
 
         // replace using StringBuffer
         StringBuffer buf = new StringBuffer(replaceTemplate);
-        assertEquals(expectedResult, sub.replace(buf, flags));
+        assertEquals(expectedResult, sub.replace(buf));
         if (substring) {
-            assertEquals(expectedShortResult, sub.replace(buf, 1, buf.length() - 2, flags));
+            assertEquals(expectedShortResult, sub.replace(buf, 1, buf.length() - 2));
         }
 
         // replace using StringBuilder
         StringBuilder builder = new StringBuilder(replaceTemplate);
-        assertEquals(expectedResult, sub.replace(builder, flags));
+        assertEquals(expectedResult, sub.replace(builder));
         if (substring) {
-            assertEquals(expectedShortResult, sub.replace(builder, 1, builder.length() - 2, flags));
+            assertEquals(expectedShortResult, sub.replace(builder, 1, builder.length() - 2));
         }
 
         // replace using StrBuilder
         StrBuilder bld = new StrBuilder(replaceTemplate);
-        assertEquals(expectedResult, sub.replace(bld, flags));
+        assertEquals(expectedResult, sub.replace(bld));
         if (substring) {
-            assertEquals(expectedShortResult, sub.replace(bld, 1, bld.length() - 2, flags));
+            assertEquals(expectedShortResult, sub.replace(bld, 1, bld.length() - 2));
         }
 
         // replace using object
         final MutableObject<String> obj = new MutableObject<>(replaceTemplate);  // toString returns template
-        assertEquals(expectedResult, sub.replace(obj, flags));
+        assertEquals(expectedResult, sub.replace(obj));
 
         // replace in StringBuffer
         buf = new StringBuffer(replaceTemplate);
-        assertTrue(sub.replaceIn(buf, flags));
+        assertTrue(sub.replaceIn(buf));
         assertEquals(expectedResult, buf.toString());
         if (substring) {
             buf = new StringBuffer(replaceTemplate);
-            assertTrue(sub.replaceIn(buf, 1, buf.length() - 2, flags));
+            assertTrue(sub.replaceIn(buf, 1, buf.length() - 2));
             assertEquals(expectedResult, buf.toString());  // expect full result as remainder is untouched
         }
 
         // replace in StringBuilder
         builder = new StringBuilder(replaceTemplate);
-        assertTrue(sub.replaceIn(builder, flags));
+        assertTrue(sub.replaceIn(builder));
         assertEquals(expectedResult, builder.toString());
         if (substring) {
             builder = new StringBuilder(replaceTemplate);
-            assertTrue(sub.replaceIn(builder, 1, builder.length() - 2, flags));
+            assertTrue(sub.replaceIn(builder, 1, builder.length() - 2));
             assertEquals(expectedResult, builder.toString());  // expect full result as remainder is untouched
         }
 
         // replace in StrBuilder
         bld = new StrBuilder(replaceTemplate);
-        assertTrue(sub.replaceIn(bld, flags));
+        assertTrue(sub.replaceIn(bld));
         assertEquals(expectedResult, bld.toString());
         if (substring) {
             bld = new StrBuilder(replaceTemplate);
-            assertTrue(sub.replaceIn(bld, 1, bld.length() - 2, flags));
+            assertTrue(sub.replaceIn(bld, 1, bld.length() - 2));
             assertEquals(expectedResult, bld.toString());  // expect full result as remainder is untouched
         }
     }
-
 
     @BeforeEach
     public void setUp() {
@@ -164,9 +160,9 @@ public class StrSubstitutorTest extends AbstractLangTest {
         final Map<String, String> map = new HashMap<>();
         map.put("name", "commons");
         StrSubstitutor sub = new StrSubstitutor(map, "<", ">", '!');
-        assertEquals("Hi < commons", sub.replace("Hi !< <name>", flags));
+        assertEquals("Hi < commons", sub.replace("Hi !< <name>"));
         sub = new StrSubstitutor(map, "<", ">", '!', "||");
-        assertEquals("Hi < commons", sub.replace("Hi !< <name2||commons>", flags));
+        assertEquals("Hi < commons", sub.replace("Hi !< <name2||commons>"));
     }
 
     /**
@@ -177,7 +173,7 @@ public class StrSubstitutorTest extends AbstractLangTest {
         final Map<String, String> map = new HashMap<>();
         map.put("name", "commons");
         final StrSubstitutor sub = new StrSubstitutor(map, "<", ">");
-        assertEquals("Hi < commons", sub.replace("Hi $< <name>", flags));
+        assertEquals("Hi < commons", sub.replace("Hi $< <name>"));
     }
 
     /**
@@ -186,7 +182,7 @@ public class StrSubstitutorTest extends AbstractLangTest {
     @Test
     public void testConstructorNoArgs() {
         final StrSubstitutor sub = new StrSubstitutor();
-        assertEquals("Hi ${name}", sub.replace("Hi ${name}", flags));
+        assertEquals("Hi ${name}", sub.replace("Hi ${name}"));
     }
 
     /**
@@ -207,7 +203,7 @@ public class StrSubstitutorTest extends AbstractLangTest {
         final StrSubstitutor sub = new StrSubstitutor(map);
         assertThrows(
                 IllegalStateException.class,
-                () -> sub.replace("The ${animal} jumps over the ${target}.", flags),
+                () -> sub.replace("The ${animal} jumps over the ${target}."),
                 "Cyclic replacement was not detected!");
 
         // also check even when default value is set.
@@ -215,7 +211,7 @@ public class StrSubstitutorTest extends AbstractLangTest {
         final StrSubstitutor sub2 = new StrSubstitutor(map);
         assertThrows(
                 IllegalStateException.class,
-                () -> sub2.replace("The ${animal} jumps over the ${target}.", flags),
+                () -> sub2.replace("The ${animal} jumps over the ${target}."),
                 "Cyclic replacement was not detected!");
     }
 
@@ -227,29 +223,29 @@ public class StrSubstitutorTest extends AbstractLangTest {
 
         StrSubstitutor sub = new StrSubstitutor(map, "${", "}", '$');
         assertEquals("The fox jumps over the lazy dog. 1234567890.",
-                sub.replace("The ${animal} jumps over the lazy ${target}. ${undefined.number:-1234567890}.", flags));
+                sub.replace("The ${animal} jumps over the lazy ${target}. ${undefined.number:-1234567890}."));
 
         sub = new StrSubstitutor(map, "${", "}", '$', "?:");
         assertEquals("The fox jumps over the lazy dog. 1234567890.",
-                sub.replace("The ${animal} jumps over the lazy ${target}. ${undefined.number?:1234567890}.", flags));
+                sub.replace("The ${animal} jumps over the lazy ${target}. ${undefined.number?:1234567890}."));
 
         sub = new StrSubstitutor(map, "${", "}", '$', "||");
         assertEquals("The fox jumps over the lazy dog. 1234567890.",
-                sub.replace("The ${animal} jumps over the lazy ${target}. ${undefined.number||1234567890}.", flags));
+                sub.replace("The ${animal} jumps over the lazy ${target}. ${undefined.number||1234567890}."));
 
         sub = new StrSubstitutor(map, "${", "}", '$', "!");
         assertEquals("The fox jumps over the lazy dog. 1234567890.",
-                sub.replace("The ${animal} jumps over the lazy ${target}. ${undefined.number!1234567890}.", flags));
+                sub.replace("The ${animal} jumps over the lazy ${target}. ${undefined.number!1234567890}."));
 
         sub = new StrSubstitutor(map, "${", "}", '$', "");
         sub.setValueDelimiterMatcher(null);
         assertEquals("The fox jumps over the lazy dog. ${undefined.number!1234567890}.",
-                sub.replace("The ${animal} jumps over the lazy ${target}. ${undefined.number!1234567890}.", flags));
+                sub.replace("The ${animal} jumps over the lazy ${target}. ${undefined.number!1234567890}."));
 
         sub = new StrSubstitutor(map, "${", "}", '$');
         sub.setValueDelimiterMatcher(null);
         assertEquals("The fox jumps over the lazy dog. ${undefined.number!1234567890}.",
-                sub.replace("The ${animal} jumps over the lazy ${target}. ${undefined.number!1234567890}.", flags));
+                sub.replace("The ${animal} jumps over the lazy ${target}. ${undefined.number!1234567890}."));
     }
 
     /**
@@ -336,8 +332,8 @@ public class StrSubstitutorTest extends AbstractLangTest {
     public void testLANG1055() {
         System.setProperty("test_key",  "test_value");
 
-        final String expected = StrSubstitutor.replace("test_key=${test_key}", System.getProperties(), flags);
-        final String actual = StrSubstitutor.replaceSystemProperties("test_key=${test_key}", flags);
+        final String expected = StrSubstitutor.replace("test_key=${test_key}", System.getProperties());
+        final String actual = StrSubstitutor.replaceSystemProperties("test_key=${test_key}");
         assertEquals(expected, actual);
     }
 
@@ -349,7 +345,7 @@ public class StrSubstitutorTest extends AbstractLangTest {
         values.put("code", "GBP");
         values.put("amount", "12.50");
         final StrSubstitutor sub = new StrSubstitutor(values);
-        assertEquals("Amount is GBP12.50", sub.replace("Amount is ${code}${amount}", flags));
+        assertEquals("Amount is GBP12.50", sub.replace("Amount is ${code}${amount}"));
     }
 
     /**
@@ -360,7 +356,7 @@ public class StrSubstitutorTest extends AbstractLangTest {
         values.put("code", "GBP");
         values.put("amount", "12.50");
         final StrSubstitutor sub = new StrSubstitutor(values);
-        assertEquals("GBP12.50 charged", sub.replace("${code}${amount} charged", flags));
+        assertEquals("GBP12.50 charged", sub.replace("${code}${amount} charged"));
     }
 
     /**
@@ -370,7 +366,7 @@ public class StrSubstitutorTest extends AbstractLangTest {
     public void testReplaceChangedMap() {
         final StrSubstitutor sub = new StrSubstitutor(values);
         values.put("target", "moon");
-        assertEquals("The quick brown fox jumps over the moon.", sub.replace("The ${animal} jumps over the ${target}.", flags));
+        assertEquals("The quick brown fox jumps over the moon.", sub.replace("The ${animal} jumps over the ${target}."));
     }
 
     /**
@@ -427,16 +423,16 @@ public class StrSubstitutorTest extends AbstractLangTest {
         sub.setEnableSubstitutionInVariables(true);
         assertEquals(
                 "The mouse jumps over the lazy dog.",
-                sub.replace("The ${animal.${species}} jumps over the ${target}.", flags),
+                sub.replace("The ${animal.${species}} jumps over the ${target}."),
                 "Wrong result (1)");
         values.put("species", "1");
         assertEquals(
                 "The fox jumps over the lazy dog.",
-                sub.replace("The ${animal.${species}} jumps over the ${target}.", flags),
+                sub.replace("The ${animal.${species}} jumps over the ${target}."),
                 "Wrong result (2)");
         assertEquals(
                 "The fox jumps over the lazy dog.",
-                sub.replace("The ${unknown.animal.${unknown.species:-1}:-fox} jumps over the ${unknown.target:-lazy dog}.", flags),
+                sub.replace("The ${unknown.animal.${unknown.species:-1}:-fox} jumps over the ${unknown.target:-lazy dog}."),
                 "Wrong result (3)");
     }
 
@@ -451,11 +447,11 @@ public class StrSubstitutorTest extends AbstractLangTest {
         final StrSubstitutor sub = new StrSubstitutor(values);
         assertEquals(
                 "The ${animal.${species}} jumps over the lazy dog.",
-                sub.replace("The ${animal.${species}} jumps over the ${target}.", flags),
+                sub.replace("The ${animal.${species}} jumps over the ${target}."),
                 "Wrong result (1)");
         assertEquals(
                 "The ${animal.${species:-1}} jumps over the lazy dog.",
-                sub.replace("The ${animal.${species:-1}} jumps over the ${target}.", flags),
+                sub.replace("The ${animal.${species:-1}} jumps over the ${target}."),
                 "Wrong result (2)");
     }
 
@@ -473,11 +469,11 @@ public class StrSubstitutorTest extends AbstractLangTest {
         sub.setEnableSubstitutionInVariables(true);
         assertEquals(
                 "The white mouse jumps over the lazy dog.",
-                sub.replace("The ${animal.${species.${color}}} jumps over the ${target}.", flags),
+                sub.replace("The ${animal.${species.${color}}} jumps over the ${target}."),
                 "Wrong result (1)");
         assertEquals(
                 "The brown fox jumps over the lazy dog.",
-                sub.replace("The ${animal.${species.${unknownColor:-brown}}} jumps over the ${target}.", flags),
+                sub.replace("The ${animal.${species.${unknownColor:-brown}}} jumps over the ${target}."),
                 "Wrong result (2)");
     }
 
@@ -519,7 +515,7 @@ public class StrSubstitutorTest extends AbstractLangTest {
     @Test
     public void testReplacePartialString_noReplace() {
         final StrSubstitutor sub = new StrSubstitutor();
-        assertEquals("${animal} jumps", sub.replace("The ${animal} jumps over the ${target}.", 4, 15, flags));
+        assertEquals("${animal} jumps", sub.replace("The ${animal} jumps over the ${target}.", 4, 15));
     }
 
     /**
@@ -634,7 +630,7 @@ public class StrSubstitutorTest extends AbstractLangTest {
                 return "jakarta";
             }
         };
-        sub.replaceIn(builder, flags);
+        sub.replaceIn(builder);
         assertEquals("Hi jakarta!", builder.toString());
     }
 
@@ -644,8 +640,8 @@ public class StrSubstitutorTest extends AbstractLangTest {
         map.put("greeting", "Hello");
         map.put(" there ", "XXX");
         map.put("name", "commons");
-        assertEquals("Hi commons!", StrSubstitutor.replace("Hi @name@!", map, "@", "@", flags));
-        assertEquals("Hello there commons!", StrSubstitutor.replace("@greeting@ there @name@!", map, "@", "@", flags));
+        assertEquals("Hi commons!", StrSubstitutor.replace("Hi @name@!", map, "@", "@"));
+        assertEquals("Hello there commons!", StrSubstitutor.replace("@greeting@ there @name@!", map, "@", "@"));
     }
 
     /**
@@ -655,7 +651,7 @@ public class StrSubstitutorTest extends AbstractLangTest {
     public void testStaticReplace() {
         final Map<String, String> map = new HashMap<>();
         map.put("name", "commons");
-        assertEquals("Hi commons!", StrSubstitutor.replace("Hi ${name}!", map, flags));
+        assertEquals("Hi commons!", StrSubstitutor.replace("Hi ${name}!", map));
     }
 
     /**
@@ -665,7 +661,7 @@ public class StrSubstitutorTest extends AbstractLangTest {
     public void testStaticReplacePrefixSuffix() {
         final Map<String, String> map = new HashMap<>();
         map.put("name", "commons");
-        assertEquals("Hi commons!", StrSubstitutor.replace("Hi <name>!", map, "<", ">", flags));
+        assertEquals("Hi commons!", StrSubstitutor.replace("Hi <name>!", map, "<", ">"));
     }
 
     /**
@@ -681,7 +677,7 @@ public class StrSubstitutorTest extends AbstractLangTest {
         buf.append(System.getProperty("user.home")).append('.');
         assertEquals(buf.toString(), StrSubstitutor.replaceSystemProperties("Hi ${user.name}, you are "
             + "working with ${os.name}, your home "
-            + "directory is ${user.home}.", flags));
+            + "directory is ${user.home}."));
     }
 
     /**
@@ -695,7 +691,7 @@ public class StrSubstitutorTest extends AbstractLangTest {
         // create a new Properties object with the System.getProperties as default
         final Properties props = new Properties(System.getProperties());
 
-        assertEquals("It works!", StrSubstitutor.replace(org, props, flags));
+        assertEquals("It works!", StrSubstitutor.replace(org, props));
     }
 
     @Test
@@ -706,26 +702,11 @@ public class StrSubstitutorTest extends AbstractLangTest {
 
         final StrSubstitutor sub = new StrSubstitutor(map, "${", "}", '$');
         assertFalse(sub.isPreserveEscapes());
-        assertEquals("value ${escaped}", sub.replace(org, flags));
+        assertEquals("value ${escaped}", sub.replace(org));
 
         sub.setPreserveEscapes(true);
         assertTrue(sub.isPreserveEscapes());
-        assertEquals("value $${escaped}", sub.replace(org, flags));
+        assertEquals("value $${escaped}", sub.replace(org));
     }
 
-    @AfterAll
-    public static void tearDownE() {
-        int numBranchVisited = 0;
-        int i = 0;
-        for (Boolean b : flags) {
-            if (b) {
-                numBranchVisited++;
-            } else {
-                System.out.println("Branch nr: " + i + " never taken");
-            }
-            i++;
-        }
-        System.out.println("Number of branches visited: " + numBranchVisited);
-        System.out.println("Branch Coverage: " + numBranchVisited/22.0000);
-    }
 }
