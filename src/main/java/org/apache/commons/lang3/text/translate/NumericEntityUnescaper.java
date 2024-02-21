@@ -97,19 +97,23 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
      */
     @Override
     public int translate(final CharSequence input, final int index, final Writer out) throws IOException {
+        // start, +1
         final int seqEnd = input.length();
         // Uses -2 to ensure there is something after the &#
         if (input.charAt(index) == '&' && index < seqEnd - 2 && input.charAt(index + 1) == '#') {
+            // +3 (if, two &&:s)
             int start = index + 2;
             boolean isHex = false;
 
             final char firstChar = input.charAt(start);
             if (firstChar == 'x' || firstChar == 'X') {
+                // +2 (if, ||)
                 start++;
                 isHex = true;
 
                 // Check there's more than just an x after the &#
                 if (start == seqEnd) {
+                    // +1
                     return 0;
                 }
             }
@@ -119,41 +123,46 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
             while (end < seqEnd && ( input.charAt(end) >= '0' && input.charAt(end) <= '9' ||
                                     input.charAt(end) >= 'a' && input.charAt(end) <= 'f' ||
                                     input.charAt(end) >= 'A' && input.charAt(end) <= 'F' ) ) {
+                // +7
                 end++;
             }
 
-            final boolean semiNext = end != seqEnd && input.charAt(end) == ';';
+            final boolean semiNext = end != seqEnd && input.charAt(end) == ';'; // +1
 
             if (!semiNext) {
+                // +1
                 if (isSet(OPTION.semiColonRequired)) {
+                    //+1
                     return 0;
                 }
-                if (isSet(OPTION.errorIfNoSemiColon)) {
-                    throw new IllegalArgumentException("Semi-colon required at end of numeric entity");
+                if (isSet(OPTION.errorIfNoSemiColon)) { // +1
+                    throw new IllegalArgumentException("Semi-colon required at end of numeric entity"); // +1 exit point
                 }
             }
 
             final int entityValue;
             try {
-                if (isHex) {
+                if (isHex) { // +1
                     entityValue = Integer.parseInt(input.subSequence(start, end).toString(), 16);
-                } else {
+                } else { // +1
                     entityValue = Integer.parseInt(input.subSequence(start, end).toString(), 10);
                 }
             } catch (final NumberFormatException nfe) {
                 return 0;
             }
 
-            if (entityValue > 0xFFFF) {
+            if (entityValue > 0xFFFF) { // +1
                 final char[] chars = Character.toChars(entityValue);
                 out.write(chars[0]);
                 out.write(chars[1]);
-            } else {
+            } else { // +1
                 out.write(entityValue);
             }
 
-            return 2 + end - start + (isHex ? 1 : 0) + (semiNext ? 1 : 0);
+            return 2 + end - start + (isHex ? 1 : 0) + (semiNext ? 1 : 0); // +4
         }
-        return 0;
+        return 0; // +1 exit point
+        // Final complexity: 26 decisions, 2 exit points --> 26 - 2 + 2 = 26
+        // Lizard's complexity: 23 (doesn't count throwables)
     }
 }
