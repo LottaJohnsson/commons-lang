@@ -99,7 +99,7 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
     public int translate(final CharSequence input, final int index, final Writer out) throws IOException {
         final int seqEnd = input.length();
         // Uses -2 to ensure there is something after the &#
-        if (input.charAt(index) == '&' && index < seqEnd - 2 && input.charAt(index + 1) == '#') {
+        if (validateInput(input, index, seqEnd)) {
             int start = index + 2;
             boolean isHex = false;
 
@@ -114,14 +114,8 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
                 }
             }
 
-            int end = start;
             // Note that this supports character codes without a ; on the end
-            while (end < seqEnd && ( input.charAt(end) >= '0' && input.charAt(end) <= '9' ||
-                                    input.charAt(end) >= 'a' && input.charAt(end) <= 'f' ||
-                                    input.charAt(end) >= 'A' && input.charAt(end) <= 'F' ) ) {
-                end++;
-            }
-
+            int end = iterateChars(input, seqEnd, start);
             final boolean semiNext = end != seqEnd && input.charAt(end) == ';';
 
             if (!semiNext) {
@@ -155,5 +149,33 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
             return 2 + end - start + (isHex ? 1 : 0) + (semiNext ? 1 : 0);
         }
         return 0;
+    }
+
+    /**
+     * Helper function to validate input for translate method
+     * @param input CharSequence that is being translated
+     * @param index int representing the current point of translation
+     * @param seqEnd length of the variable input
+     * @return A boolean value for whether the input is valid or not
+     * */
+    private boolean validateInput(final CharSequence input, final int index, final int seqEnd) {
+        return input.charAt(index) == '&' && index < seqEnd - 2 && input.charAt(index + 1) == '#';
+    }
+
+    /**
+     * Helper method that iterates over the CharSequence
+     * @param
+     * @param input CharSequence that is being translated
+     * @param seqEnd length of the variable input
+     * @param end index of the input
+     * @return which index the loop ends at
+     * */
+    private int iterateChars(final CharSequence input, final int seqEnd, int end) {
+        while (end < seqEnd && ( input.charAt(end) >= '0' && input.charAt(end) <= '9' ||
+                input.charAt(end) >= 'a' && input.charAt(end) <= 'f' ||
+                input.charAt(end) >= 'A' && input.charAt(end) <= 'F' ) ) {
+            end++;
+        }
+        return end;
     }
 }
