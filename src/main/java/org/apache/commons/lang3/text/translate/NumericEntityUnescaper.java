@@ -56,7 +56,7 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
     }
 
     // TODO?: Create an OptionsSet class to hide some of the conditional logic below
-    public final EnumSet<OPTION> options;
+    private final EnumSet<OPTION> options;
     public boolean[] flags = new boolean[26];
 
     /**
@@ -120,6 +120,8 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
                 if (start == seqEnd) {
                     flags[6] = true;
                     return 0;
+                } else {
+                    flags[26] = true;
                 }
             }
 
@@ -133,8 +135,10 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
                 flags[9] = true; // three inner &&
                 flags[10] = true;
                 flags[11] = true;
-                flags[12] = true; // two inner ||
-                flags[13] = true;
+                // two inner ||
+                if(input.charAt(end) >= '0' && input.charAt(end) <= '9'){flags[12] = true;}
+                if(input.charAt(end) >= 'a' && input.charAt(end) <= 'f'){flags[13] = true;}
+                if(input.charAt(end) >= 'A' && input.charAt(end) <= 'F' ){flags[27] = true;}
 
                 end++;
             }
@@ -147,12 +151,14 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
                 if (isSet(OPTION.semiColonRequired)) {
                     flags[16] = true;
                     return 0;
+                } else {
+                    flags[28] = true;
                 }
                 if (isSet(OPTION.errorIfNoSemiColon)) {
                     flags[17] = true;
                     throw new IllegalArgumentException("Semi-colon required at end of numeric entity");
-                }
-            }
+                } else {flags[29] = true;}
+            } else {flags[30] = true;}
 
             final int entityValue;
             try {
@@ -164,6 +170,7 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
                     entityValue = Integer.parseInt(input.subSequence(start, end).toString(), 10);
                 }
             } catch (final NumberFormatException nfe) {
+                flags[31] = true;
                 return 0;
             }
 
