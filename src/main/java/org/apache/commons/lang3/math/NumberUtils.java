@@ -318,8 +318,7 @@ public class NumberUtils {
      * @throws NumberFormatException if the value cannot be converted
      */
     public static Number createNumber(final String str) {
-
-        // start + 1
+        // Start +1
 
         if (str == null) { // + 1
             return null; // - 1 exit point
@@ -404,7 +403,7 @@ public class NumberUtils {
                     if (dec == null
                         && exp == null
                         && (!numeric.isEmpty() && numeric.charAt(0) == '-' && isDigits(numeric.substring(1)) || isDigits(numeric))) { // + 6
-                        try {
+                        try { // + 1
                             return createLong(numeric);
                         } catch (final NumberFormatException ignored) {
                             // Too big for a long
@@ -415,7 +414,7 @@ public class NumberUtils {
                     throw new NumberFormatException(str + " is not a valid number."); // - 1 exit point
                 case 'f' :  // + 1
                 case 'F' :  // + 1
-                    try {
+                    try {    // + 1
                         final Float f = createFloat(str);
                         if (!(f.isInfinite() || f.floatValue() == 0.0F && !isZero(mant, dec))) {    // + 3
                             //If it's too big for a float or the float value = 0 and the string
@@ -429,7 +428,7 @@ public class NumberUtils {
                     //$FALL-THROUGH$
                 case 'd' :  // + 1
                 case 'D' :  // + 1
-                    try {
+                    try {    // + 1
                         final Double d = createDouble(str);
                         if (!(d.isInfinite() || d.doubleValue() == 0.0D && !isZero(mant, dec))) {   // + 3
                             return d;
@@ -437,7 +436,7 @@ public class NumberUtils {
                     } catch (final NumberFormatException ignored) {
                         // ignore the bad number
                     }
-                    try {
+                    try {  // + 1
                         return createBigDecimal(numeric);
                     } catch (final NumberFormatException ignored) {
                         // ignore the bad number
@@ -457,12 +456,12 @@ public class NumberUtils {
         }
         if (dec == null && exp == null) { // no decimal point and no exponent   // + 2
             //Must be an Integer, Long, Biginteger
-            try {
+            try {  // + 1
                 return createInteger(str);
             } catch (final NumberFormatException ignored) {
                 // ignore the bad number
             }
-            try {
+            try {    // + 1
                 return createLong(str);
             } catch (final NumberFormatException ignored) {
                 // ignore the bad number
@@ -471,7 +470,7 @@ public class NumberUtils {
         }
 
         //Must be a Float, Double, BigDecimal
-        try {
+        try {    // + 1
             final Float f = createFloat(str);
             final Double d = createDouble(str);
             if (!f.isInfinite()
@@ -491,7 +490,7 @@ public class NumberUtils {
         }
         return createBigDecimal(str);
 
-        //total complexity = 58 - 6 + 2 = 54
+        //total complexity = 64 - 6 + 2 = 60
     }
 
      /**
