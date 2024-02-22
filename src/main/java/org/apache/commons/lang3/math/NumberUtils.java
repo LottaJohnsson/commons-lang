@@ -442,7 +442,7 @@ public class NumberUtils {
                         // ignore the bad number
                     }
                     //$FALL-THROUGH$
-                default :   // + 1
+                default :
                     throw new NumberFormatException(str + " is not a valid number.");
 
             }
