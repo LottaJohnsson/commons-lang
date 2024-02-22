@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RandomUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Lang</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.lang3</a> &gt; <span class="el_source">RandomUtils.java</span></div><h1>RandomUtils.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.commons.lang3;
+
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
+/**
+ * Utility library that supplements the standard {@link Random} class.
+ *
+ * &lt;p&gt;Caveat: Instances of {@link Random} are not cryptographically secure.&lt;/p&gt;
+ *
+ * &lt;p&gt;Please note that the Apache Commons project provides a component
+ * dedicated to pseudo-random number generation, namely
+ * &lt;a href=&quot;https://commons.apache.org/proper/commons-rng/&quot;&gt;Commons RNG&lt;/a&gt;, that may be
+ * a better choice for applications with more stringent requirements
+ * (performance and/or correctness).&lt;/p&gt;
+ *
+ * @deprecated Use Apache Commons RNG's optimized &lt;a href=&quot;https://commons.apache.org/proper/commons-rng/commons-rng-client-api/apidocs/org/apache/commons/rng/UniformRandomProvider.html&quot;&gt;UniformRandomProvider&lt;/a&gt;
+ * @since 3.3
+ */
+@Deprecated
+public class RandomUtils {
+
+    /**
+     * Generates a random boolean value.
+     *
+     * @return the random boolean
+     * @since 3.5
+     */
+    public static boolean nextBoolean() {
+<span class="fc" id="L46">        return random().nextBoolean();</span>
+    }
+
+    /**
+     * Generates an array of random bytes.
+     *
+     * @param count
+     *            the size of the returned array
+     * @return the random byte array
+     * @throws IllegalArgumentException if {@code count} is negative
+     */
+    public static byte[] nextBytes(final int count) {
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        Validate.isTrue(count &gt;= 0, &quot;Count cannot be negative.&quot;);</span>
+
+<span class="fc" id="L60">        final byte[] result = new byte[count];</span>
+<span class="fc" id="L61">        random().nextBytes(result);</span>
+<span class="fc" id="L62">        return result;</span>
+    }
+
+    /**
+     * Generates a random double between 0 (inclusive) and Double.MAX_VALUE (exclusive).
+     *
+     * @return the random double
+     * @see #nextDouble(double, double)
+     * @since 3.5
+     */
+    public static double nextDouble() {
+<span class="fc" id="L73">        return nextDouble(0, Double.MAX_VALUE);</span>
+    }
+
+    /**
+     * Generates a random double within the specified range.
+     *
+     * @param startInclusive
+     *            the smallest value that can be returned, must be non-negative
+     * @param endExclusive
+     *            the upper bound (not included)
+     * @throws IllegalArgumentException
+     *             if {@code startInclusive &gt; endExclusive} or if
+     *             {@code startInclusive} is negative
+     * @return the random double
+     */
+    public static double nextDouble(final double startInclusive, final double endExclusive) {
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        Validate.isTrue(endExclusive &gt;= startInclusive,</span>
+                &quot;Start value must be smaller or equal to end value.&quot;);
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        Validate.isTrue(startInclusive &gt;= 0, &quot;Both range values must be non-negative.&quot;);</span>
+
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (startInclusive == endExclusive) {</span>
+<span class="fc" id="L94">            return startInclusive;</span>
+        }
+
+<span class="fc" id="L97">        return startInclusive + (endExclusive - startInclusive) * random().nextDouble();</span>
+    }
+
+    /**
+     * Generates a random float between 0 (inclusive) and Float.MAX_VALUE (exclusive).
+     *
+     * @return the random float
+     * @see #nextFloat(float, float)
+     * @since 3.5
+     */
+    public static float nextFloat() {
+<span class="fc" id="L108">        return nextFloat(0, Float.MAX_VALUE);</span>
+    }
+
+    /**
+     * Generates a random float within the specified range.
+     *
+     * @param startInclusive
+     *            the smallest value that can be returned, must be non-negative
+     * @param endExclusive
+     *            the upper bound (not included)
+     * @throws IllegalArgumentException
+     *             if {@code startInclusive &gt; endExclusive} or if
+     *             {@code startInclusive} is negative
+     * @return the random float
+     */
+    public static float nextFloat(final float startInclusive, final float endExclusive) {
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        Validate.isTrue(endExclusive &gt;= startInclusive,</span>
+                &quot;Start value must be smaller or equal to end value.&quot;);
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        Validate.isTrue(startInclusive &gt;= 0, &quot;Both range values must be non-negative.&quot;);</span>
+
+<span class="fc bfc" id="L128" title="All 2 branches covered.">        if (startInclusive == endExclusive) {</span>
+<span class="fc" id="L129">            return startInclusive;</span>
+        }
+
+<span class="fc" id="L132">        return startInclusive + (endExclusive - startInclusive) * random().nextFloat();</span>
+    }
+
+    /**
+     * Generates a random int between 0 (inclusive) and Integer.MAX_VALUE (exclusive).
+     *
+     * @return the random integer
+     * @see #nextInt(int, int)
+     * @since 3.5
+     */
+    public static int nextInt() {
+<span class="fc" id="L143">        return nextInt(0, Integer.MAX_VALUE);</span>
+    }
+
+    /**
+     * Generates a random integer within the specified range.
+     *
+     * @param startInclusive
+     *            the smallest value that can be returned, must be non-negative
+     * @param endExclusive
+     *            the upper bound (not included)
+     * @throws IllegalArgumentException
+     *             if {@code startInclusive &gt; endExclusive} or if
+     *             {@code startInclusive} is negative
+     * @return the random integer
+     */
+    public static int nextInt(final int startInclusive, final int endExclusive) {
+<span class="fc bfc" id="L159" title="All 2 branches covered.">        Validate.isTrue(endExclusive &gt;= startInclusive,</span>
+                &quot;Start value must be smaller or equal to end value.&quot;);
+<span class="fc bfc" id="L161" title="All 2 branches covered.">        Validate.isTrue(startInclusive &gt;= 0, &quot;Both range values must be non-negative.&quot;);</span>
+
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        if (startInclusive == endExclusive) {</span>
+<span class="fc" id="L164">            return startInclusive;</span>
+        }
+
+<span class="fc" id="L167">        return startInclusive + random().nextInt(endExclusive - startInclusive);</span>
+    }
+
+    /**
+     * Generates a random long between 0 (inclusive) and Long.MAX_VALUE (exclusive).
+     *
+     * @return the random long
+     * @see #nextLong(long, long)
+     * @since 3.5
+     */
+    public static long nextLong() {
+<span class="fc" id="L178">        return nextLong(Long.MAX_VALUE);</span>
+    }
+
+    /**
+     * Generates a {@code long} value between 0 (inclusive) and the specified
+     * value (exclusive).
+     *
+     * @param n Bound on the random number to be returned.  Must be positive.
+     * @return a random {@code long} value between 0 (inclusive) and {@code n}
+     * (exclusive).
+     */
+    private static long nextLong(final long n) {
+        // Extracted from o.a.c.rng.core.BaseProvider.nextLong(long)
+        long bits;
+        long val;
+        do {
+<span class="fc" id="L194">            bits = random().nextLong() &gt;&gt;&gt; 1;</span>
+<span class="fc" id="L195">            val  = bits % n;</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">        } while (bits - val + n - 1 &lt; 0);</span>
+
+<span class="fc" id="L198">        return val;</span>
+    }
+
+    /**
+     * Generates a random long within the specified range.
+     *
+     * @param startInclusive
+     *            the smallest value that can be returned, must be non-negative
+     * @param endExclusive
+     *            the upper bound (not included)
+     * @throws IllegalArgumentException
+     *             if {@code startInclusive &gt; endExclusive} or if
+     *             {@code startInclusive} is negative
+     * @return the random long
+     */
+    public static long nextLong(final long startInclusive, final long endExclusive) {
+<span class="fc bfc" id="L214" title="All 2 branches covered.">        Validate.isTrue(endExclusive &gt;= startInclusive,</span>
+                &quot;Start value must be smaller or equal to end value.&quot;);
+<span class="fc bfc" id="L216" title="All 2 branches covered.">        Validate.isTrue(startInclusive &gt;= 0, &quot;Both range values must be non-negative.&quot;);</span>
+
+<span class="fc bfc" id="L218" title="All 2 branches covered.">        if (startInclusive == endExclusive) {</span>
+<span class="fc" id="L219">            return startInclusive;</span>
+        }
+
+<span class="fc" id="L222">        return startInclusive + nextLong(endExclusive - startInclusive);</span>
+    }
+
+    private static ThreadLocalRandom random() {
+<span class="fc" id="L226">        return ThreadLocalRandom.current();</span>
+    }
+
+    /**
+     * {@link RandomUtils} instances should NOT be constructed in standard
+     * programming. Instead, the class should be used as
+     * {@code RandomUtils.nextBytes(5);}.
+     * &lt;p&gt;
+     * This constructor is public to permit tools that require a JavaBean
+     * instance to operate.
+     * &lt;/p&gt;
+     *
+     * @deprecated TODO Make private in 4.0.
+     */
+    @Deprecated
+<span class="fc" id="L241">    public RandomUtils() {</span>
+        // empty
+<span class="fc" id="L243">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
