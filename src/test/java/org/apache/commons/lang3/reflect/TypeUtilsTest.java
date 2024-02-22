@@ -53,6 +53,7 @@ import org.apache.commons.lang3.reflect.testbed.Foo;
 import org.apache.commons.lang3.reflect.testbed.GenericParent;
 import org.apache.commons.lang3.reflect.testbed.GenericTypeHolder;
 import org.apache.commons.lang3.reflect.testbed.StringParameterizedChild;
+import org.apache.commons.lang3.util.MyGenericArrayType;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -838,6 +839,28 @@ public class TypeUtilsTest<B> extends AbstractLangTest {
         assertFalse(TypeUtils.isAssignable(subStringListType, superStringListType));
         assertFalse(TypeUtils.isAssignable(superStringListType, subStringListType));
         assertTrue(TypeUtils.isAssignable(superStringListType, superStringListType));
+    }
+
+    @Test
+    public void testIsAssignableWithNullTypes() {
+        final Type nullType = null;
+        GenericArrayType genericArrayType = new MyGenericArrayType(String.class);
+
+        assertTrue(TypeUtils.isAssignable(nullType, genericArrayType));
+    }
+
+    @Test
+    public void testIsAssignableThrowsException() {
+        GenericArrayType genericArrayType = new MyGenericArrayType(String.class);
+        final Type customType = new Type() {
+            @Override
+            public String getTypeName() {
+                return "CustomType";
+            }
+        };
+        assertThrows(IllegalStateException.class, () -> {
+            TypeUtils.isAssignable(customType, genericArrayType);
+        });
     }
 
     @SuppressWarnings("boxing") // boxing is deliberate here
