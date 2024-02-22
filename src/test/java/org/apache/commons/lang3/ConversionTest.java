@@ -164,6 +164,9 @@ public class ConversionTest extends AbstractLangTest {
         assertEquals((byte) 0xFD, Conversion.binaryToByte(src, 1 * 4, (byte) 0, 0, 2 * 4));
         assertEquals((byte) 0x34, Conversion.binaryToByte(src, 0 * 4, (byte) 0x34, 0, 0 * 4));
         assertEquals((byte) 0x84, Conversion.binaryToByte(src, 17 * 4, (byte) 0x34, 4, 1 * 4));
+
+        //Required to throw Illegal argument exception when nBools - 1 + dstPos >= 8
+        assertThrows(IllegalArgumentException.class, () -> Conversion.binaryToByte(src, 17 * 4, (byte) 0x34, 4, 2 * 4));
     }
 
     /**
@@ -245,6 +248,10 @@ public class ConversionTest extends AbstractLangTest {
         final boolean[] javaDocCheck = {
             true, false, false, true, true, false, true, false};
         assertEquals('d', Conversion.binaryToHexDigitMsb0_4bits(javaDocCheck, 3));
+
+        //Required to throw Illegal argument exception then the size of the array exceeds 8
+        final boolean [] tooLargeArray = {true, false, true, false, false, true, true, true, false, false};
+        assertThrows(IllegalArgumentException.class, () -> Conversion.binaryToHexDigitMsb0_4bits(tooLargeArray, 4));
 
     }
 
@@ -330,6 +337,9 @@ public class ConversionTest extends AbstractLangTest {
         assertEquals(0x01C0F1FD, Conversion.binaryToInt(src, 1 * 4, 0, 0, 8 * 4));
         assertEquals(0x12345679, Conversion.binaryToInt(src, 0 * 4, 0x12345679, 0, 0 * 4));
         assertEquals(0x87645679, Conversion.binaryToInt(src, 15 * 4, 0x12345679, 20, 3 * 4));
+
+        //Required to throw illegal argument exception when nBools - 1 + dstPos >= 32
+        assertThrows(IllegalArgumentException.class, ()-> Conversion.binaryToInt(src, 15 * 4, 0x12345679, 20, 4 * 4));
     }
 
     /**
@@ -354,6 +364,9 @@ public class ConversionTest extends AbstractLangTest {
         assertEquals(
             0x1234567876BCDEF0L,
             Conversion.binaryToLong(src, 15 * 4, 0x123456798ABCDEF0L, 24, 3 * 4));
+
+        //required to throw Illegal argument exception when nBools - 1 + dstPos >= 64
+        assertThrows(IllegalArgumentException.class, ()-> Conversion.binaryToLong(src, 1 * 4, 0L, 5, 8 * 8));
     }
 
     /**
@@ -377,6 +390,9 @@ public class ConversionTest extends AbstractLangTest {
             (short) 0x1234, Conversion.binaryToShort(src, 0 * 4, (short) 0x1234, 0, 0 * 4));
         assertEquals(
             (short) 0x8764, Conversion.binaryToShort(src, 15 * 4, (short) 0x1234, 4, 3 * 4));
+
+        //required to throw illegal argument exception when nBools - 1 + dstPos >= 16
+        assertThrows(IllegalArgumentException.class, () -> Conversion.binaryToShort(src, 1 * 4, (short) 0, 1, 4 * 4));
     }
 
     /**
@@ -394,6 +410,9 @@ public class ConversionTest extends AbstractLangTest {
         assertEquals(0x12345678, Conversion.byteArrayToInt(src, 0, 0x12345678, 0, 0));
         assertEquals(0xCD345678, Conversion.byteArrayToInt(src, 0, 0x12345678, 24, 1));
         // assertEquals(0x56341278, Conversion.ByteArrayToInt(src, 5, 0x01234567, 8, 4));
+
+        //Required to throw illegal argument exception when (nBytes - 1) * 8 + dstPos >= 32
+        assertThrows(IllegalArgumentException.class, () -> Conversion.byteArrayToInt(src, 0, 0x12345678, 24, 5) );
     }
 
     /**
