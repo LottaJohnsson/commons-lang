@@ -1325,7 +1325,7 @@ public class FastDatePrinter implements DatePrinter, Serializable {
      * @throws IllegalArgumentException if pattern is invalid
      */
     protected List<Rule> parsePattern() {
-        //total cyclomatic complexity: 39
+        //total cyclomatic complexity: 39-2+2=39
         final DateFormatSymbols symbols = new DateFormatSymbols(locale);
         final List<Rule> rules = new ArrayList<>();
 
@@ -1469,7 +1469,6 @@ public class FastDatePrinter implements DatePrinter, Serializable {
         }
 
         return rules; //exit point: -1
-        //connected components: +2
     }
 
     /**
