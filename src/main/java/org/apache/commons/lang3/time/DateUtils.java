@@ -1092,7 +1092,7 @@ public class DateUtils {
      * @throws ArithmeticException if the year is over 280 million
      */
     private static Calendar modify(final Calendar val, final int field, final ModifyType modType) {
-        //total cyclomatic complexity: E - N + 2*P = 29 + 2 = 31
+        //total cyclomatic complexity: E - N + 2*P = 30 + 2 = 32
         //the number of additional and missing edge will be commented out
 
         if (val.get(Calendar.YEAR) > 280000000) {
