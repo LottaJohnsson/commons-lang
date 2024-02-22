@@ -21,12 +21,13 @@ We initially tried the project Karate but were unable to build it according to t
 5. Is the documentation clear w.r.t. all the possible outcomes?
 
 parsePattern:
-The cyclomatic complexity 39 by manual count and 40 by lizard count. The function is both long and complex. It is called at FastDatePrinter initialization. It parses a given date pattern such as "YYYY-MM-DD" and returns a list of Rule objects. Exceptions are accounted for in the manual count but perhaps not in lizard since this would account for the discrepancy. The main source of complexity is a large switch statement for different tokens such as 'y' and 'h' which represent different date units. Different cases are explained through brief comments but could be further elaborated.
+The cyclomatic complexity 39 by manual count, 40 by lizard count, and 39 by jacoco. The function is both long and complex. It is called at FastDatePrinter initialization. It parses a given date pattern such as "YYYY-MM-DD" and returns a list of Rule objects. Exceptions are accounted for in the manual count but perhaps not in lizard since this would account for the discrepancy. The main source of complexity is a large switch statement for different tokens such as 'y' and 'h' which represent different date units. Different cases are explained through brief comments but could be further elaborated.
 
 isCreatable:
+Manual count (55) gives the same complexity as lizard (55) but different from jacoco (57). The function is very complex for the NLOC (95). Its purpose is to check if a string could be parsed as a number. It supports hex, octal, decimal, scientific notation, and numbers with descriptor (eg. '123l' for long). There are no exceptions. The documentation doesn't clearly explain exactly what numbers are accepted. One example is that it says that numbers beginning in '0.' are treated as decimal, but that's also true of '01.2'.
 
 modify:
-Both manual count and the lizard tool get cyclomatic complexity 32. The function is quite long at almost 200 lines. It is an internal calendar calculation function for truncate, round, or ceiling. Exceptions are viewed as exit points in the manual count. Each branch is fully commented on.
+Both manual count and the lizard tool get cyclomatic complexity 32. The function is quite long at almost 200 lines. It is an internal calendar calculation function for truncate, round, or ceiling. Exceptions are not included in the manual count. Each branch is fully commented on.
 
 translate: 
 The manual counting resulted in a cyclomatic complexity of 23, with 23 decisions and 2 exit points (when counting an exception as an exit point). This is the same result as Lizard got. The function is not long compared to other functions in the project (49 NLOC), the high complexity comes from the large while-loop on row 119. The purpose of this function is to translate a set of code points into another set of code points using a CharSequence. The manual count includes exceptions. The documentation could be better, but this class is now Deprecated
@@ -44,6 +45,8 @@ One way to refactor would be to exploit this common structure and replace the sw
 This refactoring decreases cyclomatic complexity significantly (85%) but may add some overhead and reduce readability slightly.
 
 isCreatable:
+There is some unnecessary logic that increase the complexity. The worst offender being `if (i < chars.length){}` which in the context of this function can't be false. Resulting in unreachable code and increased complexity. Also plan on moving checking hex and octal numbers to their own functions.
+The first change reduces CC, improves readability, and doesn't have any drawbacks. When refactoring the hex and octal numbers the CC of isCreatabe will be reduced but of course that complexity is really just moved elsewhere. There is a benefit to doing that though because it's easier to understand as a developer and easier to test separate parts.
 
 modify:
 Because the high complexity mainly comes from if-else within "switch" and "for", these parts can be extracted out to single helper functions. A drawback of this plan is that the switch part is used three times in different helper functions, which can be viewed as redundant.
