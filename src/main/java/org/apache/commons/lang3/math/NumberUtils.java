@@ -319,10 +319,10 @@ public class NumberUtils {
      */
     public static Number createNumber(final String str) {
 
-        // + 1
+        // start + 1
 
         if (str == null) { // + 1
-            return null; // + 1 exit point
+            return null; // - 1 exit point
         }
         if (StringUtils.isBlank(str)) { // + 1
             throw new NumberFormatException("A blank string is not a valid number"); // + 1 exit point
@@ -366,25 +366,25 @@ public class NumberUtils {
         // and the parsing which will detect if e or E appear in a number due to using the wrong offset
 
         // Detect if the return type has been requested
-        final boolean requestType = !Character.isDigit(lastChar) && lastChar != '.'; // + 1
+        final boolean requestType = !Character.isDigit(lastChar) && lastChar != '.'; // + 2
         if (decPos > -1) { // there is a decimal point  // + 1
             if (expPos > -1) { // there is an exponent  // + 1
                 if (expPos <= decPos || expPos > length) { // prevents double exponent causing IOOBE // + 2
-                    throw new NumberFormatException(str + " is not a valid number."); // + 1 exit point
+                    throw new NumberFormatException(str + " is not a valid number."); // - 1 exit point
                 }
                 dec = str.substring(decPos + 1, expPos);
-            } else {    // + 1
+            } else {
                 // No exponent, but there may be a type character to remove
                 dec = str.substring(decPos + 1, requestType ? length - 1 : length); // + 1
             }
             mant = getMantissa(str, decPos);
-        } else {    // + 1
+        } else {
             if (expPos > -1) {  // + 1
                 if (expPos > length) { // prevents double exponent causing IOOBE    // + 1
-                    throw new NumberFormatException(str + " is not a valid number.");   // + 1 exit point
+                    throw new NumberFormatException(str + " is not a valid number.");   // - 1 exit point
                 }
                 mant = getMantissa(str, expPos);
-            } else { // + 1
+            } else {
                 // No decimal, no exponent, but there may be a type character to remove
                 mant = getMantissa(str, requestType ? length - 1 : length); // + 1
             }
@@ -393,7 +393,7 @@ public class NumberUtils {
         if (requestType) {  // + 1
             if (expPos > -1 && expPos < length - 1) {   // + 2
                 exp = str.substring(expPos + 1, length - 1);
-            } else {    // + 1
+            } else {
                 exp = null;
             }
             //Requesting a specific type.
@@ -412,7 +412,7 @@ public class NumberUtils {
                         return createBigInteger(numeric);
 
                     }
-                    throw new NumberFormatException(str + " is not a valid number."); // + 1 exit point
+                    throw new NumberFormatException(str + " is not a valid number."); // - 1 exit point
                 case 'f' :  // + 1
                 case 'F' :  // + 1
                     try {
@@ -452,7 +452,7 @@ public class NumberUtils {
         //small and go from there...
         if (expPos > -1 && expPos < length - 1) {   // + 2
             exp = str.substring(expPos + 1);
-        } else {    // + 1
+        } else {
             exp = null;
         }
         if (dec == null && exp == null) { // no decimal point and no exponent   // + 2
@@ -490,6 +490,8 @@ public class NumberUtils {
             // ignore the bad number
         }
         return createBigDecimal(str);
+
+        //total complexity = 58 - 6 + 2 = 54
     }
 
      /**
