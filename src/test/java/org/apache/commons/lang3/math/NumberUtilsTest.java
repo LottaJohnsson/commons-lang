@@ -58,7 +58,7 @@ public class NumberUtilsTest extends AbstractLangTest {
 
     @BeforeAll
     public static void setUp() {
-        flags = new boolean[40];
+        flags = new boolean[61];
     }
 
     @Test

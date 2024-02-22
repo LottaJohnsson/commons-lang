@@ -818,7 +818,7 @@ public class NumberUtils {
      */
     @Deprecated
     public static boolean isNumber(final String str) {
-        boolean[] flags =  new boolean[40];
+        boolean[] flags =  new boolean[61];
         return isCreatable(str, flags);
     }
 
