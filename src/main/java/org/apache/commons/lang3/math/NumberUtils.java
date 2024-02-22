@@ -575,12 +575,16 @@ public class NumberUtils {
         // deal with any possible sign up front
         final int start = chars[0] == '-' || chars[0] == '+' ? 1 : 0;
         // 2
+        if (chars[0] == '-') flags[40] = true;
+        if (chars[0] == '+') flags[41] = true;
+        if (start == 0) flags[42] = true;
         if (sz > start + 1 && chars[start] == '0' && !StringUtils.contains(str, '.')) { // leading 0, skip if is a decimal number
                                                                                         // 3
             flags[2] = true;
             if (chars[start + 1] == 'x' || chars[start + 1] == 'X') { // leading 0x/0X
                                                                       // 2
-                flags[3] = true;
+                if (chars[start + 1] == 'x') flags[3] = true;
+                if (chars[start + 1] == 'X') flags[46] = true;
                 int i = start + 2;
                 if (i == sz) {
                     flags[4] = true;
@@ -591,13 +595,24 @@ public class NumberUtils {
                 // 1
                 // checking hex (it can't be anything else)
                 for (; i < chars.length; i++) {
+                    flags[47] = true;
                     if ((chars[i] < '0' || chars[i] > '9')
                         && (chars[i] < 'a' || chars[i] > 'f')
                         && (chars[i] < 'A' || chars[i] > 'F')) {
-                        flags[5] = true;
+                        if (chars[i] < '0') flags[48] = true;
+                        if (chars[i] > '9') flags[49] = true;
+                        if (chars[i] < 'a') flags[50] = true;
+                        if (chars[i] > 'f') flags[51] = true;
+                        if (chars[i] < 'A') flags[52] = true;
+                        if (chars[i] > 'F') flags[5] = true;
                         return false;
                     } else {
-                        flags[26] = true;
+                        if (!(chars[i] < '0')) flags[53] = true;
+                        if (!(chars[i] > '9')) flags[54] = true;
+                        if (!(chars[i] < 'a')) flags[55] = true;
+                        if (!(chars[i] > 'f')) flags[56] = true;
+                        if (!(chars[i] < 'A')) flags[57] = true;
+                        if (!(chars[i] > 'F')) flags[26] = true;
                     }
                     // 6
                 }
@@ -611,8 +626,10 @@ public class NumberUtils {
                    // leading 0, but not hex, must be octal
                    int i = start + 1;
                    for (; i < chars.length; i++) {
+                       flags[58] = true;
                        if (chars[i] < '0' || chars[i] > '7') {
-                           flags[7] = true;
+                            if (chars[i] < '0') flags[59] = true;
+                            if (chars[i] > '7') flags[7] = true;
                            return false;
                        } else {
                            flags[28] = true;
@@ -625,6 +642,10 @@ public class NumberUtils {
                    flags[29] = true;
                }
             // 1
+        } else {
+            if (!(sz > start + 1)) flags[42] = true;
+            if (chars[start] == '0') flags[43] = true; 
+            if (StringUtils.contains(str, '.')) flags[44] = true;
         }
         sz--; // don't want to loop to the last char, check it afterwards
               // for type qualifiers
@@ -633,6 +654,7 @@ public class NumberUtils {
         // make a valid number (e.g. chars[0..5] = "1234E")
         while (i < sz || i < sz + 1 && allowSigns && !foundDigit) {
             // 4
+            flags[60] = true;
             if (chars[i] >= '0' && chars[i] <= '9') {
                 flags[8] = true;
                 // 2
