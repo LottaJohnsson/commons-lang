@@ -781,9 +781,13 @@ public class NumberUtilsTest extends AbstractLangTest {
         compareIsCreatableWithCreateNumber("11 11", false);
         compareIsCreatableWithCreateNumber(" 1111", false);
         compareIsCreatableWithCreateNumber("1111 ", false);
+        // Test that 0x retruns false
         compareIsCreatableWithCreateNumber("0x", false);
+        // Test that two E's retruns false
         compareIsCreatableWithCreateNumber("12EE1", false);
+        // Test that '.' as last character with a previous Ereturns false
         compareIsCreatableWithCreateNumber("12E.", false);
+        // Test that '.' as last character with a previous '.' returns false
         compareIsCreatableWithCreateNumber("12.1.", false);
 
         compareIsCreatableWithCreateNumber("2.", true); // LANG-521
