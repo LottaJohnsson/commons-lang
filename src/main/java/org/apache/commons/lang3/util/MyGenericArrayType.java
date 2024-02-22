@@ -19,13 +19,24 @@ package org.apache.commons.lang3.util;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 
+/**
+ * Helper class to implement GenericArrayType
+ * */
 public class MyGenericArrayType implements GenericArrayType {
     private Type componentType;
 
+    /**
+     * Constructor for MyGenericArrayType
+     * @param componentType the type to be represented in the array
+     * */
     public MyGenericArrayType(Type componentType) {
         this.componentType = componentType;
     }
 
+    /**
+     * Returns a generic component type
+     * @return the component type
+     * */
     @Override
     public Type getGenericComponentType() {
         return componentType;
