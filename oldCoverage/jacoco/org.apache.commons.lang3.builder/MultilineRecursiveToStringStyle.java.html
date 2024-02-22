@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MultilineRecursiveToStringStyle.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Commons Lang</a> &gt; <a href="index.source.html" class="el_package">org.apache.commons.lang3.builder</a> &gt; <span class="el_source">MultilineRecursiveToStringStyle.java</span></div><h1>MultilineRecursiveToStringStyle.java</h1><pre class="source lang-java linenums">/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.commons.lang3.builder;
+
+import org.apache.commons.lang3.ClassUtils;
+
+/**
+ * Works with {@link ToStringBuilder} to create a &quot;deep&quot; {@code toString}.
+ * But instead a single line like the {@link RecursiveToStringStyle} this creates a multiline String
+ * similar to the {@link ToStringStyle#MULTI_LINE_STYLE}.
+ *
+ * &lt;p&gt;To use this class write code as follows:&lt;/p&gt;
+ *
+ * &lt;pre&gt;
+ * public class Job {
+ *   String title;
+ *   ...
+ * }
+ *
+ * public class Person {
+ *   String name;
+ *   int age;
+ *   boolean smoker;
+ *   Job job;
+ *
+ *   ...
+ *
+ *   public String toString() {
+ *     return new ReflectionToStringBuilder(this, new MultilineRecursiveToStringStyle()).toString();
+ *   }
+ * }
+ * &lt;/pre&gt;
+ *
+ * &lt;p&gt;
+ * This will produce a toString of the format:&lt;br&gt;
+ * &lt;code&gt;Person@7f54[ &lt;br&gt;
+ * &amp;nbsp; name=Stephen, &lt;br&gt;
+ * &amp;nbsp; age=29, &lt;br&gt;
+ * &amp;nbsp; smoker=false, &lt;br&gt;
+ * &amp;nbsp; job=Job@43cd2[ &lt;br&gt;
+ * &amp;nbsp; &amp;nbsp; title=Manager &lt;br&gt;
+ * &amp;nbsp;  ] &lt;br&gt;
+ * ]
+ * &lt;/code&gt;
+ * &lt;/p&gt;
+ *
+ * @since 3.4
+ */
+public class MultilineRecursiveToStringStyle extends RecursiveToStringStyle {
+
+    /**
+     * Required for serialization support.
+     * @see java.io.Serializable
+     */
+    private static final long serialVersionUID = 1L;
+
+    /** Indenting of inner lines. */
+    private static final int INDENT = 2;
+
+    /** Current indenting. */
+<span class="fc" id="L76">    private int spaces = 2;</span>
+
+    /**
+     * Constructs a new instance.
+     */
+<span class="fc" id="L81">    public MultilineRecursiveToStringStyle() {</span>
+<span class="fc" id="L82">        resetIndent();</span>
+<span class="fc" id="L83">    }</span>
+
+    @Override
+    protected void appendDetail(final StringBuffer buffer, final String fieldName, final boolean[] array) {
+<span class="fc" id="L87">        spaces += INDENT;</span>
+<span class="fc" id="L88">        resetIndent();</span>
+<span class="fc" id="L89">        super.appendDetail(buffer, fieldName, array);</span>
+<span class="fc" id="L90">        spaces -= INDENT;</span>
+<span class="fc" id="L91">        resetIndent();</span>
+<span class="fc" id="L92">    }</span>
+
+    @Override
+    protected void appendDetail(final StringBuffer buffer, final String fieldName, final byte[] array) {
+<span class="fc" id="L96">        spaces += INDENT;</span>
+<span class="fc" id="L97">        resetIndent();</span>
+<span class="fc" id="L98">        super.appendDetail(buffer, fieldName, array);</span>
+<span class="fc" id="L99">        spaces -= INDENT;</span>
+<span class="fc" id="L100">        resetIndent();</span>
+<span class="fc" id="L101">    }</span>
+
+    @Override
+    protected void appendDetail(final StringBuffer buffer, final String fieldName, final char[] array) {
+<span class="fc" id="L105">        spaces += INDENT;</span>
+<span class="fc" id="L106">        resetIndent();</span>
+<span class="fc" id="L107">        super.appendDetail(buffer, fieldName, array);</span>
+<span class="fc" id="L108">        spaces -= INDENT;</span>
+<span class="fc" id="L109">        resetIndent();</span>
+<span class="fc" id="L110">    }</span>
+
+    @Override
+    protected void appendDetail(final StringBuffer buffer, final String fieldName, final double[] array) {
+<span class="fc" id="L114">        spaces += INDENT;</span>
+<span class="fc" id="L115">        resetIndent();</span>
+<span class="fc" id="L116">        super.appendDetail(buffer, fieldName, array);</span>
+<span class="fc" id="L117">        spaces -= INDENT;</span>
+<span class="fc" id="L118">        resetIndent();</span>
+<span class="fc" id="L119">    }</span>
+
+    @Override
+    protected void appendDetail(final StringBuffer buffer, final String fieldName, final float[] array) {
+<span class="fc" id="L123">        spaces += INDENT;</span>
+<span class="fc" id="L124">        resetIndent();</span>
+<span class="fc" id="L125">        super.appendDetail(buffer, fieldName, array);</span>
+<span class="fc" id="L126">        spaces -= INDENT;</span>
+<span class="fc" id="L127">        resetIndent();</span>
+<span class="fc" id="L128">    }</span>
+
+    @Override
+    protected void appendDetail(final StringBuffer buffer, final String fieldName, final int[] array) {
+<span class="fc" id="L132">        spaces += INDENT;</span>
+<span class="fc" id="L133">        resetIndent();</span>
+<span class="fc" id="L134">        super.appendDetail(buffer, fieldName, array);</span>
+<span class="fc" id="L135">        spaces -= INDENT;</span>
+<span class="fc" id="L136">        resetIndent();</span>
+<span class="fc" id="L137">    }</span>
+
+    @Override
+    protected void appendDetail(final StringBuffer buffer, final String fieldName, final long[] array) {
+<span class="fc" id="L141">        spaces += INDENT;</span>
+<span class="fc" id="L142">        resetIndent();</span>
+<span class="fc" id="L143">        super.appendDetail(buffer, fieldName, array);</span>
+<span class="fc" id="L144">        spaces -= INDENT;</span>
+<span class="fc" id="L145">        resetIndent();</span>
+<span class="fc" id="L146">    }</span>
+
+    @Override
+    public void appendDetail(final StringBuffer buffer, final String fieldName, final Object value) {
+<span class="fc bfc" id="L150" title="All 4 branches covered.">        if (!ClassUtils.isPrimitiveWrapper(value.getClass()) &amp;&amp; !String.class.equals(value.getClass())</span>
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">                &amp;&amp; accept(value.getClass())) {</span>
+<span class="fc" id="L152">            spaces += INDENT;</span>
+<span class="fc" id="L153">            resetIndent();</span>
+<span class="fc" id="L154">            buffer.append(ReflectionToStringBuilder.toString(value, this));</span>
+<span class="fc" id="L155">            spaces -= INDENT;</span>
+<span class="fc" id="L156">            resetIndent();</span>
+        } else {
+<span class="fc" id="L158">            super.appendDetail(buffer, fieldName, value);</span>
+        }
+<span class="fc" id="L160">    }</span>
+
+    @Override
+    protected void appendDetail(final StringBuffer buffer, final String fieldName, final Object[] array) {
+<span class="fc" id="L164">        spaces += INDENT;</span>
+<span class="fc" id="L165">        resetIndent();</span>
+<span class="fc" id="L166">        super.appendDetail(buffer, fieldName, array);</span>
+<span class="fc" id="L167">        spaces -= INDENT;</span>
+<span class="fc" id="L168">        resetIndent();</span>
+<span class="fc" id="L169">    }</span>
+
+    @Override
+    protected void appendDetail(final StringBuffer buffer, final String fieldName, final short[] array) {
+<span class="fc" id="L173">        spaces += INDENT;</span>
+<span class="fc" id="L174">        resetIndent();</span>
+<span class="fc" id="L175">        super.appendDetail(buffer, fieldName, array);</span>
+<span class="fc" id="L176">        spaces -= INDENT;</span>
+<span class="fc" id="L177">        resetIndent();</span>
+<span class="fc" id="L178">    }</span>
+
+    @Override
+    protected void reflectionAppendArrayDetail(final StringBuffer buffer, final String fieldName, final Object array) {
+<span class="fc" id="L182">        spaces += INDENT;</span>
+<span class="fc" id="L183">        resetIndent();</span>
+<span class="fc" id="L184">        super.reflectionAppendArrayDetail(buffer, fieldName, array);</span>
+<span class="fc" id="L185">        spaces -= INDENT;</span>
+<span class="fc" id="L186">        resetIndent();</span>
+<span class="fc" id="L187">    }</span>
+
+    /**
+     * Resets the fields responsible for the line breaks and indenting.
+     * Must be invoked after changing the {@link #spaces} value.
+     */
+    private void resetIndent() {
+<span class="fc" id="L194">        setArrayStart(&quot;{&quot; + System.lineSeparator() + spacer(spaces));</span>
+<span class="fc" id="L195">        setArraySeparator(&quot;,&quot; + System.lineSeparator() + spacer(spaces));</span>
+<span class="fc" id="L196">        setArrayEnd(System.lineSeparator() + spacer(spaces - INDENT) + &quot;}&quot;);</span>
+
+<span class="fc" id="L198">        setContentStart(&quot;[&quot; + System.lineSeparator() + spacer(spaces));</span>
+<span class="fc" id="L199">        setFieldSeparator(&quot;,&quot; + System.lineSeparator() + spacer(spaces));</span>
+<span class="fc" id="L200">        setContentEnd(System.lineSeparator() + spacer(spaces - INDENT) + &quot;]&quot;);</span>
+<span class="fc" id="L201">    }</span>
+
+    /**
+     * Creates a StringBuilder responsible for the indenting.
+     *
+     * @param spaces how far to indent
+     * @return a StringBuilder with {spaces} leading space characters.
+     */
+    private StringBuilder spacer(final int spaces) {
+<span class="fc" id="L210">        final StringBuilder sb = new StringBuilder();</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">        for (int i = 0; i &lt; spaces; i++) {</span>
+<span class="fc" id="L212">            sb.append(&quot; &quot;);</span>
+        }
+<span class="fc" id="L214">        return sb;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
