@@ -31,6 +31,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.LocaleUtils;
@@ -1317,6 +1318,37 @@ public class FastDatePrinter implements DatePrinter, Serializable {
         return Calendar.getInstance(timeZone, locale);
     }
 
+    /**
+     * Returns a HashMap with mapping from character to function for creating Rule
+     */
+    protected ConcurrentHashMap<Character, Function<Integer, Rule>> getRulesMapping(String[] ERAs, String[] months, String[] shortMonths, String[] weekdays, String[] shortWeekdays, String[] AmPmStrings) {
+        ConcurrentHashMap<Character, Function<Integer, Rule>> rulesMapping = new ConcurrentHashMap<>();
+        rulesMapping.put('G', (tokenLen) -> new TextField(Calendar.ERA, ERAs)); // era designator (text)
+        rulesMapping.put('y', (tokenLen) -> tokenLen == 2 ? TwoDigitYearField.INSTANCE : selectNumberRule(Calendar.YEAR, Math.max(tokenLen, 4))); // year (number)
+        rulesMapping.put('Y', (tokenLen) -> new WeekYear((NumberRule) (tokenLen == 2 ? TwoDigitYearField.INSTANCE : selectNumberRule(Calendar.YEAR, Math.max(tokenLen, 4))))); // week year
+        rulesMapping.put('M', (tokenLen) -> tokenLen >= 3 ? new TextField(Calendar.MONTH, tokenLen == 3 ? shortMonths : months) : tokenLen == 2 ? TwoDigitMonthField.INSTANCE : UnpaddedMonthField.INSTANCE); // month in year (text and number)
+        rulesMapping.put('L', (tokenLen) -> tokenLen >= 3 ? new TextField(Calendar.MONTH, tokenLen == 3 ? CalendarUtils.getInstance(locale).getStandaloneShortMonthNames() : CalendarUtils.getInstance(locale).getStandaloneLongMonthNames()) : tokenLen == 2 ? TwoDigitMonthField.INSTANCE : UnpaddedMonthField.INSTANCE); // month in year (text and number)
+        rulesMapping.put('d', (tokenLen) -> selectNumberRule(Calendar.DAY_OF_MONTH, tokenLen)); // day in month (number)
+        rulesMapping.put('h', (tokenLen) -> new TwelveHourField(selectNumberRule(Calendar.HOUR, tokenLen))); // hour in am/pm (number, 1..12)
+        rulesMapping.put('H', (tokenLen) -> selectNumberRule(Calendar.HOUR_OF_DAY, tokenLen)); // hour in day (number, 0..23)
+        rulesMapping.put('m', (tokenLen) -> selectNumberRule(Calendar.MINUTE, tokenLen)); // minute in hour (number)
+        rulesMapping.put('s', (tokenLen) -> selectNumberRule(Calendar.SECOND, tokenLen)); // second in minute (number)
+        rulesMapping.put('S', (tokenLen) -> selectNumberRule(Calendar.MILLISECOND, tokenLen)); // millisecond (number)
+        rulesMapping.put('E', (tokenLen) -> new TextField(Calendar.DAY_OF_WEEK, tokenLen < 4 ? shortWeekdays : weekdays)); // day in week (text)
+        rulesMapping.put('u', (tokenLen) -> new DayInWeekField(selectNumberRule(Calendar.DAY_OF_WEEK, tokenLen))); // day in week (number)
+        rulesMapping.put('D', (tokenLen) -> selectNumberRule(Calendar.DAY_OF_YEAR, tokenLen)); // day in year (number)
+        rulesMapping.put('F', (tokenLen) -> selectNumberRule(Calendar.DAY_OF_WEEK_IN_MONTH, tokenLen)); // day of week in month (number)
+        rulesMapping.put('w', (tokenLen) -> selectNumberRule(Calendar.WEEK_OF_YEAR, tokenLen)); // week in year (number)
+        rulesMapping.put('W', (tokenLen) -> selectNumberRule(Calendar.WEEK_OF_MONTH, tokenLen)); // week in month (number)
+        rulesMapping.put('a', (tokenLen) -> new TextField(Calendar.AM_PM, AmPmStrings)); // am/pm marker (text)
+        rulesMapping.put('k', (tokenLen) -> new TwentyFourHourField(selectNumberRule(Calendar.HOUR_OF_DAY, tokenLen))); // hour in day (1..24)
+        rulesMapping.put('K', (tokenLen) -> selectNumberRule(Calendar.HOUR, tokenLen)); // hour in am/pm (0..11)
+        rulesMapping.put('X', (tokenLen) -> Iso8601_Rule.getRule(tokenLen)); // ISO 8601
+        rulesMapping.put('z', (tokenLen) -> new TimeZoneNameRule(timeZone, locale, tokenLen < 4 ? TimeZone.SHORT : TimeZone.LONG)); // time zone (text)
+        rulesMapping.put('Z', (tokenLen) -> tokenLen == 1 ? TimeZoneNumberRule.INSTANCE_NO_COLON : tokenLen == 2 ? Iso8601_Rule.ISO8601_HOURS_COLON_MINUTES : TimeZoneNumberRule.INSTANCE_COLON); // time zone (value)
+        return rulesMapping;
+    }
+
     // Parse the pattern
     /**
      * Returns a list of Rules given a pattern.
@@ -1351,119 +1383,20 @@ public class FastDatePrinter implements DatePrinter, Serializable {
             Rule rule;
             final char c = token.charAt(0);
 
-            switch (c) {
-            case 'G': // era designator (text)
-                rule = new TextField(Calendar.ERA, ERAs);
-                break;
-            case 'y': // year (number)
-            case 'Y': // week year
-                if (tokenLen == 2) {
-                    rule = TwoDigitYearField.INSTANCE;
-                } else {
-                    rule = selectNumberRule(Calendar.YEAR, Math.max(tokenLen, 4));
-                }
-                if (c == 'Y') {
-                    rule = new WeekYear((NumberRule) rule);
-                }
-                break;
-            case 'M': // month in year (text and number)
-                if (tokenLen >= 4) {
-                    rule = new TextField(Calendar.MONTH, months);
-                } else if (tokenLen == 3) {
-                    rule = new TextField(Calendar.MONTH, shortMonths);
-                } else if (tokenLen == 2) {
-                    rule = TwoDigitMonthField.INSTANCE;
-                } else {
-                    rule = UnpaddedMonthField.INSTANCE;
-                }
-                break;
-            case 'L': // month in year (text and number)
-                if (tokenLen >= 4) {
-                    rule = new TextField(Calendar.MONTH, CalendarUtils.getInstance(locale).getStandaloneLongMonthNames());
-                } else if (tokenLen == 3) {
-                    rule = new TextField(Calendar.MONTH, CalendarUtils.getInstance(locale).getStandaloneShortMonthNames());
-                } else if (tokenLen == 2) {
-                    rule = TwoDigitMonthField.INSTANCE;
-                } else {
-                    rule = UnpaddedMonthField.INSTANCE;
-                }
-                break;
-            case 'd': // day in month (number)
-                rule = selectNumberRule(Calendar.DAY_OF_MONTH, tokenLen);
-                break;
-            case 'h': // hour in am/pm (number, 1..12)
-                rule = new TwelveHourField(selectNumberRule(Calendar.HOUR, tokenLen));
-                break;
-            case 'H': // hour in day (number, 0..23)
-                rule = selectNumberRule(Calendar.HOUR_OF_DAY, tokenLen);
-                break;
-            case 'm': // minute in hour (number)
-                rule = selectNumberRule(Calendar.MINUTE, tokenLen);
-                break;
-            case 's': // second in minute (number)
-                rule = selectNumberRule(Calendar.SECOND, tokenLen);
-                break;
-            case 'S': // millisecond (number)
-                rule = selectNumberRule(Calendar.MILLISECOND, tokenLen);
-                break;
-            case 'E': // day in week (text)
-                rule = new TextField(Calendar.DAY_OF_WEEK, tokenLen < 4 ? shortWeekdays : weekdays);
-                break;
-            case 'u': // day in week (number)
-                rule = new DayInWeekField(selectNumberRule(Calendar.DAY_OF_WEEK, tokenLen));
-                break;
-            case 'D': // day in year (number)
-                rule = selectNumberRule(Calendar.DAY_OF_YEAR, tokenLen);
-                break;
-            case 'F': // day of week in month (number)
-                rule = selectNumberRule(Calendar.DAY_OF_WEEK_IN_MONTH, tokenLen);
-                break;
-            case 'w': // week in year (number)
-                rule = selectNumberRule(Calendar.WEEK_OF_YEAR, tokenLen);
-                break;
-            case 'W': // week in month (number)
-                rule = selectNumberRule(Calendar.WEEK_OF_MONTH, tokenLen);
-                break;
-            case 'a': // am/pm marker (text)
-                rule = new TextField(Calendar.AM_PM, AmPmStrings);
-                break;
-            case 'k': // hour in day (1..24)
-                rule = new TwentyFourHourField(selectNumberRule(Calendar.HOUR_OF_DAY, tokenLen));
-                break;
-            case 'K': // hour in am/pm (0..11)
-                rule = selectNumberRule(Calendar.HOUR, tokenLen);
-                break;
-            case 'X': // ISO 8601
-                rule = Iso8601_Rule.getRule(tokenLen);
-                break;
-            case 'z': // time zone (text)
-                if (tokenLen >= 4) {
-                    rule = new TimeZoneNameRule(timeZone, locale, TimeZone.LONG);
-                } else {
-                    rule = new TimeZoneNameRule(timeZone, locale, TimeZone.SHORT);
-                }
-                break;
-            case 'Z': // time zone (value)
-                if (tokenLen == 1) {
-                    rule = TimeZoneNumberRule.INSTANCE_NO_COLON;
-                } else if (tokenLen == 2) {
-                    rule = Iso8601_Rule.ISO8601_HOURS_COLON_MINUTES;
-                } else {
-                    rule = TimeZoneNumberRule.INSTANCE_COLON;
-                }
-                break;
-            case '\'': // literal text
+            ConcurrentHashMap<Character, Function<Integer, Rule>> rulesMapping = getRulesMapping(ERAs, months, shortMonths, weekdays, shortWeekdays, AmPmStrings);
+
+            if (rulesMapping.containsKey(c)) {
+                rule = rulesMapping.get(c).apply(tokenLen);
+            } else if (c == '\'') { // literal text
                 final String sub = token.substring(1);
                 if (sub.length() == 1) {
                     rule = new CharacterLiteral(sub.charAt(0));
                 } else {
                     rule = new StringLiteral(sub);
                 }
-                break;
-            default:
+            } else {
                 throw new IllegalArgumentException("Illegal pattern component: " + token);
             }
-
             rules.add(rule);
         }
 
