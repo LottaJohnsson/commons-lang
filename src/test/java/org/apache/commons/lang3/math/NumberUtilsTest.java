@@ -44,7 +44,7 @@ public class NumberUtilsTest extends AbstractLangTest {
     public static boolean [] flags;
     @BeforeAll
     public static void setUp(){
-        flags = new boolean[62];
+        flags = new boolean[70];
         Arrays.fill(flags,false);
     }
 

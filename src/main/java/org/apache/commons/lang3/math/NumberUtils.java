@@ -324,10 +324,13 @@ public class NumberUtils {
             flags[1] = true;
             return null;
         }
+        flags[62] = true;
+
         if (StringUtils.isBlank(str)) {
             flags[2] = true;
             throw new NumberFormatException("A blank string is not a valid number");
         }
+        flags[63] = true;
         // Need to deal with all possible hex prefixes here
         final String[] hexPrefixes = {"0x", "0X", "#"};
         final int length = str.length();
@@ -344,6 +347,7 @@ public class NumberUtils {
                 pfxLen += pfx.length() + offset;
                 break;
             }
+            flags[64] = true;
         }
         if (pfxLen > 0) { // we have a hex number
             flags[5] = true;
@@ -356,6 +360,7 @@ public class NumberUtils {
                     break;
                 }
                 pfxLen++;
+                flags[65] = true;
             }
             final int hexDigits = length - pfxLen;
 
@@ -471,6 +476,7 @@ public class NumberUtils {
                             flags[26] = true;
                             return f;
                         }
+                        flags[66] = true;
 
                     } catch (final NumberFormatException ignored) {
                         // ignore the bad number
@@ -487,6 +493,7 @@ public class NumberUtils {
                             flags[30] = true;
                             return d;
                         }
+                        flags[67] = true;
                     } catch (final NumberFormatException ignored) {
                         // ignore the bad number
                         flags[31] = true;
@@ -504,6 +511,7 @@ public class NumberUtils {
 
             }
         }
+        flags[68] = true;
         //User doesn't have a preference on the return type, so let's start
         //small and go from there...
         if (expPos > -1 && expPos < length - 1) {
@@ -531,6 +539,7 @@ public class NumberUtils {
             flags[56] = true;
             return createBigInteger(str);
         }
+        flags[69] = true;
 
         //Must be a Float, Double, BigDecimal
         try {
