@@ -21,19 +21,18 @@ We initially tried the project Karate but were unable to build it according to t
 5. Is the documentation clear w.r.t. all the possible outcomes?
 
 parsePattern:
-1. Cyclomatic complexity 39 by manual count and 40 by lizard count.
-2. Function is both long and complex.
-3. The function is called at FastDatePrinter initialization. It parses a given date pattern such as "YYYY-MM-DD" and returns a list of Rule objects.
-4. Exceptions are accounted for in the manual count but perhaps not in lizard since this would account for the discrepancy.
-5. The main source of complexity is a large switch statement for different tokens such as 'y' and 'h' which represent different date units. Different cases are explained through brief comments but could be further elaborated.
+The cyclomatic complexity 39 by manual count and 40 by lizard count. The function is both long and complex. It is called at FastDatePrinter initialization. It parses a given date pattern such as "YYYY-MM-DD" and returns a list of Rule objects. Exceptions are accounted for in the manual count but perhaps not in lizard since this would account for the discrepancy. The main source of complexity is a large switch statement for different tokens such as 'y' and 'h' which represent different date units. Different cases are explained through brief comments but could be further elaborated.
 
-isCreatable: ...
+isCreatable:
 
-modify: ...
+modify:
+Both manual count and the lizard tool get cyclomatic complexity 32. The function is quite long at almost 200 lines. It is an internal calendar calculation function for truncate, round, or ceiling. Exceptions are viewed as exit points in the manual count. Each branch is fully commented on.
 
-substitute: ...
+translate: 
+The manual counting resulted in a cyclomatic complexity of 23, with 23 decisions and 2 exit points (when counting an exception as an exit point). This is the same result as Lizard got. The function is not long compared to other functions in the project (49 NLOC), the high complexity comes from the large while-loop on row 119. The purpose of this function is to translate a set of code points into another set of code points using a CharSequence. The manual count includes exceptions. The documentation could be better, but this class is now Deprecated
 
-createNumber: ...
+createNumber: 
+Lizard found the cyclomatic complexity to be 65 but manually, only 60 was found. The reason for this is that lizard excluded thrown exceptions as exit points. If the thrown exceptions were disregarded the complexity was the same. The CreateNumber function is both long with 144 loc and complex although very well documented with inline comments. The purpose of the function is to create an instance of the class Number given a string input.
 
 ## Refactoring
 
@@ -44,13 +43,17 @@ The main source of complexity is a large switch statement with 24 cases + defaul
 One way to refactor would be to exploit this common structure and replace the switch statement with a HashMap mapping each character to a function which takes token length as parameter and returns an appropriate rule. This part could also be moved to a separate helper function.
 This refactoring decreases cyclomatic complexity significantly (85%) but may add some overhead and reduce readability slightly.
 
-isCreatable: ...
+isCreatable:
 
-modify: ...
+modify:
+Because the high complexity mainly comes from if-else within "switch" and "for", these parts can be extracted out to single helper functions. A drawback of this plan is that the switch part is used three times in different helper functions, which can be viewed as redundant.
 
-substitute: ...
+translate: 
+In order to refactor this function to lower the complexity, one would probably have to move the while-loop on row 119 to an outside helper function, since its condition contributes with 7 whole branches to the cyclomatic complexity. Furthermore, one could move the contents of the first if statement with a helper function that checks whether the input is valid. With this, you lower the complexity further by 3. 
+All in all, implementing this would reduce the complexity from 24 to 14 (decreased by ca. 40%).
 
-createNumber: ...
+createNumber:
+To refactor the method three parts can be broken out into smaller utility functions called: createFloatDoubleOrBigDecimal, createNumberFromRequest, createNumberFromHex. This will decrease the loc in createNumber from 144 to 61 making it more readable and easier to debug. This will also decrease the cyclomatic complexity from 65 to 22. The possible drawbacks from this refactoring is maybe that there are more functions to debug.
 
 Carried out refactoring (optional, P+): yes
 
@@ -80,7 +83,7 @@ git diff manualBranchCoverage master
 What kinds of constructs does your tool support, and how accurate is
 its output?
 
-...
+The tool covers basic branches such as if, for, and while statements. It also covers the multiple branches of statements with multiple conditions, such as if statements with an OR or AND. See next section for accuracy and limitations.
 
 ### Evaluation
 
@@ -90,7 +93,7 @@ Our coverage measurement outputs the IDs of the branches which are not covered b
 
 2. What are the limitations of your own tool?
 
-Our tool does not account for all ternary operators.
+Our tool does not account for all ternary operators. It also requires manual implementation to extend to new functions.
 
 3. Are the results of your tool consistent with existing coverage tools?
 
@@ -112,26 +115,27 @@ Number of test cases added: four per team member (P+).
 
 ## Self-assessment: Way of working
 
-Current state according to the Essence standard: ...
+Current state according to the Essence standard: In Place
 
 Was the self-assessment unanimous? Any doubts about certain items?
 
-...
+The self-assessment was unanimous. We have established practices, support each other and use the same tools.
 
 How have you improved so far?
 
-...
+We have improved since the beginning of the course by becoming more proficient in using Git as well as communicating among ourselves and structuring our work.
 
 Where is potential for improvement?
 
-...
+We could improve to the next stage (Working Well) by becoming more proficient in the tools we are working with, since this time for example, we introduced two new tools (Lizard and Jacoco). We are also still learning when it comes to certain Git, Java, and Maven features.
 
 ## Overall experience
 
 What are your main take-aways from this project? What did you learn?
 
-...
+Even projects that have been worked on by a lot of highly skilled and knowledgeable people can have flaws.
+Managing large code projects is hard. It requires a lot of testing and attention to detail.
 
 Is there something special you want to mention here?
 
-...
+Our project already had very high branch coverage, especially functions with high cyclomatic complexity. Also, many of the branches which were not covered were logically unreachable, making it difficult to identify new potential tests.
