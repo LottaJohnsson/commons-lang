@@ -1196,7 +1196,7 @@ public class DateUtils {
                             val.add(aField[0], 1);
                         }
                     }
-                    //-1 = 22
+                    //-0 = 23
                     return val;
                 }
             }
@@ -1205,10 +1205,10 @@ public class DateUtils {
             boolean offsetSet = false;
             //These are special types of fields that require different rounding rules
             switch (field) {
-                //+2 = 24
+                //+2 = 25
                 case SEMI_MONTH:
                     if (aField[0] == Calendar.DATE) {
-                        //+1 = 25
+                        //+1 = 26
                         //If we're going to drop the DATE field's value,
                         //  we want to do this our own way.
                         //We need to subtract 1 since the date has a minimum of 1
@@ -1216,7 +1216,7 @@ public class DateUtils {
                         //If we're above 15 days adjustment, that means we're in the
                         //  bottom half of the month and should stay accordingly.
                         if (offset >= 15) {
-                            //+1 = 26
+                            //+1 = 27
                             offset -= 15;
                         }
                         //Record whether we're in the top or bottom half of that range
@@ -1226,12 +1226,12 @@ public class DateUtils {
                     break;
                 case Calendar.AM_PM:
                     if (aField[0] == Calendar.HOUR_OF_DAY) {
-                        //+1 = 27
+                        //+1 = 28
                         //If we're going to drop the HOUR field's value,
                         //  we want to do this our own way.
                         offset = val.get(Calendar.HOUR_OF_DAY);
                         if (offset >= 12) {
-                            //+1 = 28
+                            //+1 = 29
                             offset -= 12;
                         }
                         roundUp = offset >= 6;
@@ -1242,7 +1242,7 @@ public class DateUtils {
                     break;
             }
             if (!offsetSet) {
-                //+1 = 29
+                //+1 = 30
                 final int min = val.getActualMinimum(aField[0]);
                 final int max = val.getActualMaximum(aField[0]);
                 //Calculate the offset from the minimum allowed value
@@ -1252,11 +1252,11 @@ public class DateUtils {
             }
             //We need to remove this field
             if (offset != 0) {
-                //+1 = 30
+                //+1 = 31
                 val.set(aField[0], val.get(aField[0]) - offset);
             }
         }
-        //-1 = 29
+        //-1 = 30
         throw new IllegalArgumentException("The field " + field + " is not supported");
     }
 
