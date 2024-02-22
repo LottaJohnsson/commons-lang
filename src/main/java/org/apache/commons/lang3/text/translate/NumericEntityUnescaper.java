@@ -57,6 +57,7 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
 
     // TODO?: Create an OptionsSet class to hide some of the conditional logic below
     private final EnumSet<OPTION> options;
+    public boolean[] flags = new boolean[31];
 
     /**
      * Create a UnicodeUnescaper.
@@ -97,20 +98,30 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
      */
     @Override
     public int translate(final CharSequence input, final int index, final Writer out) throws IOException {
+        flags[0] = true;
         final int seqEnd = input.length();
         // Uses -2 to ensure there is something after the &#
         if (input.charAt(index) == '&' && index < seqEnd - 2 && input.charAt(index + 1) == '#') {
+            flags[1] = true;
+            flags[2] = true;
+            flags[3] = true;
             int start = index + 2;
             boolean isHex = false;
 
             final char firstChar = input.charAt(start);
             if (firstChar == 'x' || firstChar == 'X') {
+                if(firstChar == 'x'){flags[4] = true;}
+                if(firstChar == 'X'){flags[5] = true;}
+
                 start++;
                 isHex = true;
 
                 // Check there's more than just an x after the &#
                 if (start == seqEnd) {
+                    flags[6] = true;
                     return 0;
+                } else {
+                    flags[26] = true;
                 }
             }
 
@@ -119,37 +130,69 @@ public class NumericEntityUnescaper extends CharSequenceTranslator {
             while (end < seqEnd && ( input.charAt(end) >= '0' && input.charAt(end) <= '9' ||
                                     input.charAt(end) >= 'a' && input.charAt(end) <= 'f' ||
                                     input.charAt(end) >= 'A' && input.charAt(end) <= 'F' ) ) {
+                flags[7] = true; // for the while
+                flags[8] = true; // for the &&
+                flags[9] = true; // three inner &&
+                flags[10] = true;
+                flags[11] = true;
+                // two inner ||
+                if(input.charAt(end) >= '0' && input.charAt(end) <= '9'){flags[12] = true;}
+                if(input.charAt(end) >= 'a' && input.charAt(end) <= 'f'){flags[13] = true;}
+                if(input.charAt(end) >= 'A' && input.charAt(end) <= 'F' ){flags[27] = true;}
+
                 end++;
             }
 
             final boolean semiNext = end != seqEnd && input.charAt(end) == ';';
+            flags[14] = true; // && above
 
             if (!semiNext) {
+                flags[15] = true;
                 if (isSet(OPTION.semiColonRequired)) {
+                    flags[16] = true;
                     return 0;
+                } else {
+                    flags[28] = true;
                 }
                 if (isSet(OPTION.errorIfNoSemiColon)) {
+                    flags[17] = true;
                     throw new IllegalArgumentException("Semi-colon required at end of numeric entity");
-                }
-            }
+                } else {flags[29] = true;}
+            } else {flags[30] = true;}
 
             final int entityValue;
             try {
                 if (isHex) {
+                    flags[18] = true;
                     entityValue = Integer.parseInt(input.subSequence(start, end).toString(), 16);
                 } else {
+                    flags[19] = true;
                     entityValue = Integer.parseInt(input.subSequence(start, end).toString(), 10);
                 }
             } catch (final NumberFormatException nfe) {
+                flags[31] = true;
                 return 0;
             }
 
             if (entityValue > 0xFFFF) {
+                flags[20] = true;
                 final char[] chars = Character.toChars(entityValue);
                 out.write(chars[0]);
                 out.write(chars[1]);
             } else {
+                flags[21] = true;
                 out.write(entityValue);
+            }
+
+            if(isHex) { // Branches for the return statement below
+                flags[22] = true;
+            } else {
+                flags[23] = true;
+            }
+            if(semiNext) {
+                flags[24] = true;
+            } else {
+                flags[25] = true;
             }
 
             return 2 + end - start + (isHex ? 1 : 0) + (semiNext ? 1 : 0);
