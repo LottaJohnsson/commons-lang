@@ -1325,6 +1325,7 @@ public class FastDatePrinter implements DatePrinter, Serializable {
      * @throws IllegalArgumentException if pattern is invalid
      */
     protected List<Rule> parsePattern() {
+        //total cyclomatic complexity: 39-2+2=39
         final DateFormatSymbols symbols = new DateFormatSymbols(locale);
         final List<Rule> rules = new ArrayList<>();
 
@@ -1338,51 +1339,51 @@ public class FastDatePrinter implements DatePrinter, Serializable {
         final int length = pattern.length();
         final int[] indexRef = new int[1];
 
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < length; i++) { //decision: +1
             indexRef[0] = i;
             final String token = parseToken(pattern, indexRef);
             i = indexRef[0];
 
             final int tokenLen = token.length();
-            if (tokenLen == 0) {
+            if (tokenLen == 0) { //decision: +1
                 break;
             }
 
             Rule rule;
             final char c = token.charAt(0);
 
-            switch (c) {
+            switch (c) { //decision: +24
             case 'G': // era designator (text)
                 rule = new TextField(Calendar.ERA, ERAs);
                 break;
             case 'y': // year (number)
             case 'Y': // week year
-                if (tokenLen == 2) {
+                if (tokenLen == 2) { //decision: +1
                     rule = TwoDigitYearField.INSTANCE;
                 } else {
                     rule = selectNumberRule(Calendar.YEAR, Math.max(tokenLen, 4));
                 }
-                if (c == 'Y') {
+                if (c == 'Y') { //decision: +1
                     rule = new WeekYear((NumberRule) rule);
                 }
                 break;
             case 'M': // month in year (text and number)
-                if (tokenLen >= 4) {
+                if (tokenLen >= 4) { //decision: +1
                     rule = new TextField(Calendar.MONTH, months);
-                } else if (tokenLen == 3) {
+                } else if (tokenLen == 3) { //decision: +1
                     rule = new TextField(Calendar.MONTH, shortMonths);
-                } else if (tokenLen == 2) {
+                } else if (tokenLen == 2) { //decision: +1
                     rule = TwoDigitMonthField.INSTANCE;
                 } else {
                     rule = UnpaddedMonthField.INSTANCE;
                 }
                 break;
             case 'L': // month in year (text and number)
-                if (tokenLen >= 4) {
+                if (tokenLen >= 4) { //decision: +1
                     rule = new TextField(Calendar.MONTH, CalendarUtils.getInstance(locale).getStandaloneLongMonthNames());
-                } else if (tokenLen == 3) {
+                } else if (tokenLen == 3) { //decision: +1
                     rule = new TextField(Calendar.MONTH, CalendarUtils.getInstance(locale).getStandaloneShortMonthNames());
-                } else if (tokenLen == 2) {
+                } else if (tokenLen == 2) { //decision: +1
                     rule = TwoDigitMonthField.INSTANCE;
                 } else {
                     rule = UnpaddedMonthField.INSTANCE;
@@ -1407,7 +1408,7 @@ public class FastDatePrinter implements DatePrinter, Serializable {
                 rule = selectNumberRule(Calendar.MILLISECOND, tokenLen);
                 break;
             case 'E': // day in week (text)
-                rule = new TextField(Calendar.DAY_OF_WEEK, tokenLen < 4 ? shortWeekdays : weekdays);
+                rule = new TextField(Calendar.DAY_OF_WEEK, tokenLen < 4 ? shortWeekdays : weekdays); //decision: +1
                 break;
             case 'u': // day in week (number)
                 rule = new DayInWeekField(selectNumberRule(Calendar.DAY_OF_WEEK, tokenLen));
@@ -1437,16 +1438,16 @@ public class FastDatePrinter implements DatePrinter, Serializable {
                 rule = Iso8601_Rule.getRule(tokenLen);
                 break;
             case 'z': // time zone (text)
-                if (tokenLen >= 4) {
+                if (tokenLen >= 4) { //decision: +1
                     rule = new TimeZoneNameRule(timeZone, locale, TimeZone.LONG);
                 } else {
                     rule = new TimeZoneNameRule(timeZone, locale, TimeZone.SHORT);
                 }
                 break;
             case 'Z': // time zone (value)
-                if (tokenLen == 1) {
+                if (tokenLen == 1) { //decision: +1
                     rule = TimeZoneNumberRule.INSTANCE_NO_COLON;
-                } else if (tokenLen == 2) {
+                } else if (tokenLen == 2) { //decision: +1
                     rule = Iso8601_Rule.ISO8601_HOURS_COLON_MINUTES;
                 } else {
                     rule = TimeZoneNumberRule.INSTANCE_COLON;
@@ -1454,20 +1455,20 @@ public class FastDatePrinter implements DatePrinter, Serializable {
                 break;
             case '\'': // literal text
                 final String sub = token.substring(1);
-                if (sub.length() == 1) {
+                if (sub.length() == 1) { //decision: +1
                     rule = new CharacterLiteral(sub.charAt(0));
                 } else {
                     rule = new StringLiteral(sub);
                 }
                 break;
             default:
-                throw new IllegalArgumentException("Illegal pattern component: " + token);
+                throw new IllegalArgumentException("Illegal pattern component: " + token); //exit point: -1
             }
 
             rules.add(rule);
         }
 
-        return rules;
+        return rules; //exit point: -1
     }
 
     /**
