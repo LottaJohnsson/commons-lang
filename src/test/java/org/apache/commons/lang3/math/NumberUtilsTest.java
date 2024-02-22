@@ -28,24 +28,51 @@ import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.Arrays;
 
 import org.apache.commons.lang3.AbstractLangTest;
 import org.junit.jupiter.api.Test;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 /**
  * Unit tests {@link org.apache.commons.lang3.math.NumberUtils}.
  */
 public class NumberUtilsTest extends AbstractLangTest {
 
+    public static boolean [] flags;
+    @BeforeAll
+    public static void setUp(){
+        flags = new boolean[70];
+        Arrays.fill(flags,false);
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        int numBranchVisited = 0;
+        int i = 0;
+        for (Boolean b : flags) {
+            if (b) {
+                numBranchVisited++;
+            } else {
+                System.out.println("Branch nr: " + i + " never taken");
+            }
+            i++;
+        }
+        System.out.println("Number of branches visited: " + numBranchVisited);
+        System.out.println("Branch Coverage: " + numBranchVisited/flags.length);
+    }
+
     private static void assertCreateNumberZero(final String number, final Object zero, final Object negativeZero) {
-        assertEquals(zero, NumberUtils.createNumber(number), () -> "Input: " + number);
-        assertEquals(zero, NumberUtils.createNumber("+" + number), () -> "Input: +" + number);
-        assertEquals(negativeZero, NumberUtils.createNumber("-" + number), () -> "Input: -" + number);
+        assertEquals(zero, NumberUtils.createNumber(number,flags), () -> "Input: " + number);
+        assertEquals(zero, NumberUtils.createNumber("+" + number,flags), () -> "Input: +" + number);
+        assertEquals(negativeZero, NumberUtils.createNumber("-" + number,flags), () -> "Input: -" + number);
     }
 
     private boolean checkCreateNumber(final String val) {
         try {
-            final Object obj = NumberUtils.createNumber(val);
+            final Object obj = NumberUtils.createNumber(val,flags);
             return obj != null;
         } catch (final NumberFormatException e) {
             return false;
@@ -483,151 +510,151 @@ public class NumberUtilsTest extends AbstractLangTest {
     @Test
     public void testCreateNumber() {
         // a lot of things can go wrong
-        assertEquals(Float.valueOf("1234.5"), NumberUtils.createNumber("1234.5"), "createNumber(String) 1 failed");
-        assertEquals(Integer.valueOf("12345"), NumberUtils.createNumber("12345"), "createNumber(String) 2 failed");
-        assertEquals(Double.valueOf("1234.5"), NumberUtils.createNumber("1234.5D"), "createNumber(String) 3 failed");
-        assertEquals(Double.valueOf("1234.5"), NumberUtils.createNumber("1234.5d"), "createNumber(String) 3 failed");
-        assertEquals(Float.valueOf("1234.5"), NumberUtils.createNumber("1234.5F"), "createNumber(String) 4 failed");
-        assertEquals(Float.valueOf("1234.5"), NumberUtils.createNumber("1234.5f"), "createNumber(String) 4 failed");
-        assertEquals(Long.valueOf(Integer.MAX_VALUE + 1L), NumberUtils.createNumber("" + (Integer.MAX_VALUE + 1L)),
+        assertEquals(Float.valueOf("1234.5"), NumberUtils.createNumber("1234.5", flags), "createNumber(String) 1 failed");
+        assertEquals(Integer.valueOf("12345"), NumberUtils.createNumber("12345", flags), "createNumber(String) 2 failed");
+        assertEquals(Double.valueOf("1234.5"), NumberUtils.createNumber("1234.5D", flags), "createNumber(String) 3 failed");
+        assertEquals(Double.valueOf("1234.5"), NumberUtils.createNumber("1234.5d", flags), "createNumber(String) 3 failed");
+        assertEquals(Float.valueOf("1234.5"), NumberUtils.createNumber("1234.5F", flags), "createNumber(String) 4 failed");
+        assertEquals(Float.valueOf("1234.5"), NumberUtils.createNumber("1234.5f", flags), "createNumber(String) 4 failed");
+        assertEquals(Long.valueOf(Integer.MAX_VALUE + 1L), NumberUtils.createNumber("" + (Integer.MAX_VALUE + 1L), flags),
             "createNumber(String) 5 failed");
-        assertEquals(Long.valueOf(12345), NumberUtils.createNumber("12345L"), "createNumber(String) 6 failed");
-        assertEquals(Long.valueOf(12345), NumberUtils.createNumber("12345l"), "createNumber(String) 6 failed");
-        assertEquals(Float.valueOf("-1234.5"), NumberUtils.createNumber("-1234.5"), "createNumber(String) 7 failed");
-        assertEquals(Integer.valueOf("-12345"), NumberUtils.createNumber("-12345"), "createNumber(String) 8 failed");
-        assertEquals(0xFADE, NumberUtils.createNumber("0xFADE").intValue(), "createNumber(String) 9a failed");
-        assertEquals(0xFADE, NumberUtils.createNumber("0Xfade").intValue(), "createNumber(String) 9b failed");
-        assertEquals(-0xFADE, NumberUtils.createNumber("-0xFADE").intValue(), "createNumber(String) 10a failed");
-        assertEquals(-0xFADE, NumberUtils.createNumber("-0Xfade").intValue(), "createNumber(String) 10b failed");
-        assertEquals(Double.valueOf("1.1E200"), NumberUtils.createNumber("1.1E200"), "createNumber(String) 11 failed");
-        assertEquals(Float.valueOf("1.1E20"), NumberUtils.createNumber("1.1E20"), "createNumber(String) 12 failed");
-        assertEquals(Double.valueOf("-1.1E200"), NumberUtils.createNumber("-1.1E200"),
+        assertEquals(Long.valueOf(12345), NumberUtils.createNumber("12345L", flags), "createNumber(String) 6 failed");
+        assertEquals(Long.valueOf(12345), NumberUtils.createNumber("12345l", flags), "createNumber(String) 6 failed");
+        assertEquals(Float.valueOf("-1234.5"), NumberUtils.createNumber("-1234.5", flags), "createNumber(String) 7 failed");
+        assertEquals(Integer.valueOf("-12345"), NumberUtils.createNumber("-12345", flags), "createNumber(String) 8 failed");
+        assertEquals(0xFADE, NumberUtils.createNumber("0xFADE", flags).intValue(), "createNumber(String) 9a failed");
+        assertEquals(0xFADE, NumberUtils.createNumber("0Xfade", flags).intValue(), "createNumber(String) 9b failed");
+        assertEquals(-0xFADE, NumberUtils.createNumber("-0xFADE", flags).intValue(), "createNumber(String) 10a failed");
+        assertEquals(-0xFADE, NumberUtils.createNumber("-0Xfade", flags).intValue(), "createNumber(String) 10b failed");
+        assertEquals(Double.valueOf("1.1E200"), NumberUtils.createNumber("1.1E200", flags), "createNumber(String) 11 failed");
+        assertEquals(Float.valueOf("1.1E20"), NumberUtils.createNumber("1.1E20", flags), "createNumber(String) 12 failed");
+        assertEquals(Double.valueOf("-1.1E200"), NumberUtils.createNumber("-1.1E200", flags),
             "createNumber(String) 13 failed");
-        assertEquals(Double.valueOf("1.1E-200"), NumberUtils.createNumber("1.1E-200"),
+        assertEquals(Double.valueOf("1.1E-200"), NumberUtils.createNumber("1.1E-200", flags),
             "createNumber(String) 14 failed");
-        assertNull(NumberUtils.createNumber(null), "createNumber(null) failed");
-        assertEquals(new BigInteger("12345678901234567890"), NumberUtils.createNumber("12345678901234567890L"),
+        assertNull(NumberUtils.createNumber(null, flags), "createNumber(null) failed");
+        assertEquals(new BigInteger("12345678901234567890"), NumberUtils.createNumber("12345678901234567890L", flags),
             "createNumber(String) failed");
 
-        assertEquals(new BigDecimal("1.1E-700"), NumberUtils.createNumber("1.1E-700F"),
+        assertEquals(new BigDecimal("1.1E-700"), NumberUtils.createNumber("1.1E-700F", flags),
             "createNumber(String) 15 failed");
 
-        assertEquals(Long.valueOf("10" + Integer.MAX_VALUE), NumberUtils.createNumber("10" + Integer.MAX_VALUE + "L"),
+        assertEquals(Long.valueOf("10" + Integer.MAX_VALUE), NumberUtils.createNumber("10" + Integer.MAX_VALUE + "L", flags),
             "createNumber(String) 16 failed");
-        assertEquals(Long.valueOf("10" + Integer.MAX_VALUE), NumberUtils.createNumber("10" + Integer.MAX_VALUE),
+        assertEquals(Long.valueOf("10" + Integer.MAX_VALUE), NumberUtils.createNumber("10" + Integer.MAX_VALUE, flags),
             "createNumber(String) 17 failed");
-        assertEquals(new BigInteger("10" + Long.MAX_VALUE), NumberUtils.createNumber("10" + Long.MAX_VALUE),
+        assertEquals(new BigInteger("10" + Long.MAX_VALUE), NumberUtils.createNumber("10" + Long.MAX_VALUE, flags),
             "createNumber(String) 18 failed");
 
         // LANG-521
-        assertEquals(Float.valueOf("2."), NumberUtils.createNumber("2."), "createNumber(String) LANG-521 failed");
+        assertEquals(Float.valueOf("2."), NumberUtils.createNumber("2.", flags), "createNumber(String) LANG-521 failed");
 
         // LANG-638
         assertFalse(checkCreateNumber("1eE"), "createNumber(String) succeeded");
 
         // LANG-693
-        assertEquals(Double.valueOf(Double.MAX_VALUE), NumberUtils.createNumber("" + Double.MAX_VALUE),
+        assertEquals(Double.valueOf(Double.MAX_VALUE), NumberUtils.createNumber("" + Double.MAX_VALUE, flags),
             "createNumber(String) LANG-693 failed");
 
         // LANG-822
         // ensure that the underlying negative number would create a BigDecimal
-        final Number bigNum = NumberUtils.createNumber("-1.1E-700F");
+        final Number bigNum = NumberUtils.createNumber("-1.1E-700F", flags);
         assertNotNull(bigNum);
         assertEquals(BigDecimal.class, bigNum.getClass());
 
         // LANG-1018
-        assertEquals(Double.valueOf("-160952.54"), NumberUtils.createNumber("-160952.54"),
+        assertEquals(Double.valueOf("-160952.54"), NumberUtils.createNumber("-160952.54", flags),
             "createNumber(String) LANG-1018 failed");
         // LANG-1187
-        assertEquals(Double.valueOf("6264583.33"), NumberUtils.createNumber("6264583.33"),
+        assertEquals(Double.valueOf("6264583.33"), NumberUtils.createNumber("6264583.33", flags),
             "createNumber(String) LANG-1187 failed");
         // LANG-1215
-        assertEquals(Double.valueOf("193343.82"), NumberUtils.createNumber("193343.82"),
+        assertEquals(Double.valueOf("193343.82"), NumberUtils.createNumber("193343.82", flags),
             "createNumber(String) LANG-1215 failed");
         // LANG-1060
-        assertEquals(Double.valueOf("001234.5678"), NumberUtils.createNumber("001234.5678"),
+        assertEquals(Double.valueOf("001234.5678"), NumberUtils.createNumber("001234.5678", flags),
             "createNumber(String) LANG-1060a failed");
-        assertEquals(Double.valueOf("+001234.5678"), NumberUtils.createNumber("+001234.5678"),
+        assertEquals(Double.valueOf("+001234.5678"), NumberUtils.createNumber("+001234.5678", flags),
             "createNumber(String) LANG-1060b failed");
-        assertEquals(Double.valueOf("-001234.5678"), NumberUtils.createNumber("-001234.5678"),
+        assertEquals(Double.valueOf("-001234.5678"), NumberUtils.createNumber("-001234.5678", flags),
             "createNumber(String) LANG-1060c failed");
-        assertEquals(Double.valueOf("0000.00000"), NumberUtils.createNumber("0000.00000d"),
+        assertEquals(Double.valueOf("0000.00000"), NumberUtils.createNumber("0000.00000d", flags),
             "createNumber(String) LANG-1060d failed");
-        assertEquals(Float.valueOf("001234.56"), NumberUtils.createNumber("001234.56"),
+        assertEquals(Float.valueOf("001234.56"), NumberUtils.createNumber("001234.56", flags),
             "createNumber(String) LANG-1060e failed");
-        assertEquals(Float.valueOf("+001234.56"), NumberUtils.createNumber("+001234.56"),
+        assertEquals(Float.valueOf("+001234.56"), NumberUtils.createNumber("+001234.56", flags),
             "createNumber(String) LANG-1060f failed");
-        assertEquals(Float.valueOf("-001234.56"), NumberUtils.createNumber("-001234.56"),
+        assertEquals(Float.valueOf("-001234.56"), NumberUtils.createNumber("-001234.56", flags),
             "createNumber(String) LANG-1060g failed");
-        assertEquals(Float.valueOf("0000.10"), NumberUtils.createNumber("0000.10"),
+        assertEquals(Float.valueOf("0000.10"), NumberUtils.createNumber("0000.10", flags),
             "createNumber(String) LANG-1060h failed");
-        assertEquals(Float.valueOf("001.1E20"), NumberUtils.createNumber("001.1E20"),
+        assertEquals(Float.valueOf("001.1E20"), NumberUtils.createNumber("001.1E20", flags),
             "createNumber(String) LANG-1060i failed");
-        assertEquals(Float.valueOf("+001.1E20"), NumberUtils.createNumber("+001.1E20"),
+        assertEquals(Float.valueOf("+001.1E20"), NumberUtils.createNumber("+001.1E20", flags),
             "createNumber(String) LANG-1060j failed");
-        assertEquals(Float.valueOf("-001.1E20"), NumberUtils.createNumber("-001.1E20"),
+        assertEquals(Float.valueOf("-001.1E20"), NumberUtils.createNumber("-001.1E20", flags),
             "createNumber(String) LANG-1060k failed");
-        assertEquals(Double.valueOf("001.1E200"), NumberUtils.createNumber("001.1E200"),
+        assertEquals(Double.valueOf("001.1E200"), NumberUtils.createNumber("001.1E200", flags),
             "createNumber(String) LANG-1060l failed");
-        assertEquals(Double.valueOf("+001.1E200"), NumberUtils.createNumber("+001.1E200"),
+        assertEquals(Double.valueOf("+001.1E200"), NumberUtils.createNumber("+001.1E200", flags),
             "createNumber(String) LANG-1060m failed");
-        assertEquals(Double.valueOf("-001.1E200"), NumberUtils.createNumber("-001.1E200"),
+        assertEquals(Double.valueOf("-001.1E200"), NumberUtils.createNumber("-001.1E200", flags),
             "createNumber(String) LANG-1060n failed");
         // LANG-1645
-        assertEquals(Integer.decode("+0xF"), NumberUtils.createNumber("+0xF"),
+        assertEquals(Integer.decode("+0xF"), NumberUtils.createNumber("+0xF", flags),
             "createNumber(String) LANG-1645a failed");
-        assertEquals(Long.decode("+0xFFFFFFFF"), NumberUtils.createNumber("+0xFFFFFFFF"),
+        assertEquals(Long.decode("+0xFFFFFFFF"), NumberUtils.createNumber("+0xFFFFFFFF", flags),
             "createNumber(String) LANG-1645b failed");
-        assertEquals(new BigInteger("+FFFFFFFFFFFFFFFF", 16), NumberUtils.createNumber("+0xFFFFFFFFFFFFFFFF"),
+        assertEquals(new BigInteger("+FFFFFFFFFFFFFFFF", 16), NumberUtils.createNumber("+0xFFFFFFFFFFFFFFFF", flags),
             "createNumber(String) LANG-1645c failed");
     }
 
     @Test
     // Check that the code fails to create a valid number when preceded by -- rather than -
     public void testCreateNumberFailure_1() {
-        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("--1.1E-700F"));
+        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("--1.1E-700F", flags));
     }
 
     @Test
     // Check that the code fails to create a valid number when both e and E are present (with decimal)
     public void testCreateNumberFailure_2() {
-        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("-1.1E+0-7e00"));
+        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("-1.1E+0-7e00", flags));
     }
 
     @Test
     // Check that the code fails to create a valid number when both e and E are present (no decimal)
     public void testCreateNumberFailure_3() {
-        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("-11E+0-7e00"));
+        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("-11E+0-7e00", flags));
     }
 
     @Test
     // Check that the code fails to create a valid number when both e and E are present (no decimal)
     public void testCreateNumberFailure_4() {
-        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("1eE+00001"));
+        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("1eE+00001", flags));
     }
 
     @Test
     // Check that the code fails to create a valid number when there are multiple trailing 'f' characters (LANG-1205)
     public void testCreateNumberFailure_5() {
-        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("1234.5ff"));
+        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("1234.5ff", flags));
     }
 
     @Test
     // Check that the code fails to create a valid number when there are multiple trailing 'F' characters (LANG-1205)
     public void testCreateNumberFailure_6() {
-        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("1234.5FF"));
+        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("1234.5FF", flags));
     }
 
     @Test
     // Check that the code fails to create a valid number when there are multiple trailing 'd' characters (LANG-1205)
     public void testCreateNumberFailure_7() {
-        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("1234.5dd"));
+        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("1234.5dd", flags));
     }
 
     @Test
     // Check that the code fails to create a valid number when there are multiple trailing 'D' characters (LANG-1205)
     public void testCreateNumberFailure_8() {
-        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("1234.5DD"));
+        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("1234.5DD", flags));
     }
 
     // Tests to show when magnitude causes switch to next Number type
@@ -635,47 +662,47 @@ public class NumberUtilsTest extends AbstractLangTest {
     @Test
     public void testCreateNumberMagnitude() {
         // Test Float.MAX_VALUE, and same with +1 in final digit to check conversion changes to next Number type
-        assertEquals(Float.valueOf(Float.MAX_VALUE), NumberUtils.createNumber("3.4028235e+38"));
-        assertEquals(Double.valueOf(3.4028236e+38), NumberUtils.createNumber("3.4028236e+38"));
+        assertEquals(Float.valueOf(Float.MAX_VALUE), NumberUtils.createNumber("3.4028235e+38", flags));
+        assertEquals(Double.valueOf(3.4028236e+38), NumberUtils.createNumber("3.4028236e+38", flags));
 
         // Test Double.MAX_VALUE
-        assertEquals(Double.valueOf(Double.MAX_VALUE), NumberUtils.createNumber("1.7976931348623157e+308"));
+        assertEquals(Double.valueOf(Double.MAX_VALUE), NumberUtils.createNumber("1.7976931348623157e+308", flags));
         // Test with +2 in final digit (+1 does not cause roll-over to BigDecimal)
-        assertEquals(new BigDecimal("1.7976931348623159e+308"), NumberUtils.createNumber("1.7976931348623159e+308"));
+        assertEquals(new BigDecimal("1.7976931348623159e+308"), NumberUtils.createNumber("1.7976931348623159e+308", flags));
 
         // Requested type is parsed as zero but the value is not zero
         final Double nonZero1 = Double.valueOf((double) Float.MIN_VALUE / 2);
-        assertEquals(nonZero1, NumberUtils.createNumber(nonZero1.toString()));
-        assertEquals(nonZero1, NumberUtils.createNumber(nonZero1 + "F"));
+        assertEquals(nonZero1, NumberUtils.createNumber(nonZero1.toString(), flags));
+        assertEquals(nonZero1, NumberUtils.createNumber(nonZero1 + "F", flags));
         // Smallest double is 4.9e-324.
         // Test a number with zero before and/or after the decimal place to hit edge cases.
         final BigDecimal nonZero2 = new BigDecimal("4.9e-325");
-        assertEquals(nonZero2, NumberUtils.createNumber("4.9e-325"));
-        assertEquals(nonZero2, NumberUtils.createNumber("4.9e-325D"));
+        assertEquals(nonZero2, NumberUtils.createNumber("4.9e-325", flags));
+        assertEquals(nonZero2, NumberUtils.createNumber("4.9e-325D", flags));
         final BigDecimal nonZero3 = new BigDecimal("1e-325");
-        assertEquals(nonZero3, NumberUtils.createNumber("1e-325"));
-        assertEquals(nonZero3, NumberUtils.createNumber("1e-325D"));
+        assertEquals(nonZero3, NumberUtils.createNumber("1e-325", flags));
+        assertEquals(nonZero3, NumberUtils.createNumber("1e-325D", flags));
         final BigDecimal nonZero4 = new BigDecimal("0.1e-325");
-        assertEquals(nonZero4, NumberUtils.createNumber("0.1e-325"));
-        assertEquals(nonZero4, NumberUtils.createNumber("0.1e-325D"));
+        assertEquals(nonZero4, NumberUtils.createNumber("0.1e-325", flags));
+        assertEquals(nonZero4, NumberUtils.createNumber("0.1e-325D", flags));
 
-        assertEquals(Integer.valueOf(0x12345678), NumberUtils.createNumber("0x12345678"));
-        assertEquals(Long.valueOf(0x123456789L), NumberUtils.createNumber("0x123456789"));
+        assertEquals(Integer.valueOf(0x12345678), NumberUtils.createNumber("0x12345678", flags));
+        assertEquals(Long.valueOf(0x123456789L), NumberUtils.createNumber("0x123456789", flags));
 
-        assertEquals(Long.valueOf(0x7fffffffffffffffL), NumberUtils.createNumber("0x7fffffffffffffff"));
+        assertEquals(Long.valueOf(0x7fffffffffffffffL), NumberUtils.createNumber("0x7fffffffffffffff", flags));
         // Does not appear to be a way to create a literal BigInteger of this magnitude
-        assertEquals(new BigInteger("7fffffffffffffff0", 16), NumberUtils.createNumber("0x7fffffffffffffff0"));
+        assertEquals(new BigInteger("7fffffffffffffff0", 16), NumberUtils.createNumber("0x7fffffffffffffff0", flags));
 
-        assertEquals(Long.valueOf(0x7fffffffffffffffL), NumberUtils.createNumber("#7fffffffffffffff"));
-        assertEquals(new BigInteger("7fffffffffffffff0", 16), NumberUtils.createNumber("#7fffffffffffffff0"));
+        assertEquals(Long.valueOf(0x7fffffffffffffffL), NumberUtils.createNumber("#7fffffffffffffff", flags));
+        assertEquals(new BigInteger("7fffffffffffffff0", 16), NumberUtils.createNumber("#7fffffffffffffff0", flags));
 
-        assertEquals(Integer.valueOf(017777777777), NumberUtils.createNumber("017777777777")); // 31 bits
-        assertEquals(Long.valueOf(037777777777L), NumberUtils.createNumber("037777777777")); // 32 bits
+        assertEquals(Integer.valueOf(017777777777), NumberUtils.createNumber("017777777777", flags)); // 31 bits
+        assertEquals(Long.valueOf(037777777777L), NumberUtils.createNumber("037777777777", flags)); // 32 bits
 
         // 63 bits
-        assertEquals(Long.valueOf(0777777777777777777777L), NumberUtils.createNumber("0777777777777777777777"));
+        assertEquals(Long.valueOf(0777777777777777777777L), NumberUtils.createNumber("0777777777777777777777", flags));
         // 64 bits
-        assertEquals(new BigInteger("1777777777777777777777", 8), NumberUtils.createNumber("01777777777777777777777"));
+        assertEquals(new BigInteger("1777777777777777777777", 8), NumberUtils.createNumber("01777777777777777777777", flags));
     }
 
     /**
@@ -684,10 +711,10 @@ public class NumberUtilsTest extends AbstractLangTest {
     @Test
     public void testCreateNumberZero() {
         // Handle integers
-        assertEquals(Integer.valueOf(0), NumberUtils.createNumber("0"));
-        assertEquals(Integer.valueOf(0), NumberUtils.createNumber("-0"));
-        assertEquals(Long.valueOf(0), NumberUtils.createNumber("0L"));
-        assertEquals(Long.valueOf(0), NumberUtils.createNumber("-0L"));
+        assertEquals(Integer.valueOf(0), NumberUtils.createNumber("0", flags));
+        assertEquals(Integer.valueOf(0), NumberUtils.createNumber("-0", flags));
+        assertEquals(Long.valueOf(0), NumberUtils.createNumber("0L", flags));
+        assertEquals(Long.valueOf(0), NumberUtils.createNumber("-0L", flags));
 
         // Handle floating-point with optional leading sign, trailing exponent (eX)
         // and format specifier (F or D).
@@ -723,8 +750,8 @@ public class NumberUtilsTest extends AbstractLangTest {
 
     @Test
     public void testInvalidNumber() {
-        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("E123e.3"));
-        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("-"));
+        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("E123e.3", flags));
+        assertThrows(NumberFormatException.class, () -> NumberUtils.createNumber("-", flags));
     }
 
     /**
@@ -941,14 +968,14 @@ public class NumberUtilsTest extends AbstractLangTest {
     @Test
     public void testLang1087() {
         // no sign cases
-        assertEquals(Float.class, NumberUtils.createNumber("0.0").getClass());
-        assertEquals(Float.valueOf("0.0"), NumberUtils.createNumber("0.0"));
+        assertEquals(Float.class, NumberUtils.createNumber("0.0", flags).getClass());
+        assertEquals(Float.valueOf("0.0"), NumberUtils.createNumber("0.0", flags));
         // explicit positive sign cases
-        assertEquals(Float.class, NumberUtils.createNumber("+0.0").getClass());
-        assertEquals(Float.valueOf("+0.0"), NumberUtils.createNumber("+0.0"));
+        assertEquals(Float.class, NumberUtils.createNumber("+0.0", flags).getClass());
+        assertEquals(Float.valueOf("+0.0"), NumberUtils.createNumber("+0.0", flags));
         // negative sign cases
-        assertEquals(Float.class, NumberUtils.createNumber("-0.0").getClass());
-        assertEquals(Float.valueOf("-0.0"), NumberUtils.createNumber("-0.0"));
+        assertEquals(Float.class, NumberUtils.createNumber("-0.0", flags).getClass());
+        assertEquals(Float.valueOf("-0.0"), NumberUtils.createNumber("-0.0", flags));
     }
 
     @Test
@@ -959,9 +986,9 @@ public class NumberUtilsTest extends AbstractLangTest {
 
     @Test
     public void testLang300() {
-        NumberUtils.createNumber("-1l");
-        NumberUtils.createNumber("01l");
-        NumberUtils.createNumber("1l");
+        NumberUtils.createNumber("-1l", flags);
+        NumberUtils.createNumber("01l", flags);
+        NumberUtils.createNumber("1l", flags);
     }
 
     @Test
@@ -988,39 +1015,39 @@ public class NumberUtilsTest extends AbstractLangTest {
 
     @Test
     public void TestLang747() {
-        assertEquals(Integer.valueOf(0x8000), NumberUtils.createNumber("0x8000"));
-        assertEquals(Integer.valueOf(0x80000), NumberUtils.createNumber("0x80000"));
-        assertEquals(Integer.valueOf(0x800000), NumberUtils.createNumber("0x800000"));
-        assertEquals(Integer.valueOf(0x8000000), NumberUtils.createNumber("0x8000000"));
-        assertEquals(Integer.valueOf(0x7FFFFFFF), NumberUtils.createNumber("0x7FFFFFFF"));
-        assertEquals(Long.valueOf(0x80000000L), NumberUtils.createNumber("0x80000000"));
-        assertEquals(Long.valueOf(0xFFFFFFFFL), NumberUtils.createNumber("0xFFFFFFFF"));
+        assertEquals(Integer.valueOf(0x8000), NumberUtils.createNumber("0x8000", flags));
+        assertEquals(Integer.valueOf(0x80000), NumberUtils.createNumber("0x80000", flags));
+        assertEquals(Integer.valueOf(0x800000), NumberUtils.createNumber("0x800000", flags));
+        assertEquals(Integer.valueOf(0x8000000), NumberUtils.createNumber("0x8000000", flags));
+        assertEquals(Integer.valueOf(0x7FFFFFFF), NumberUtils.createNumber("0x7FFFFFFF", flags));
+        assertEquals(Long.valueOf(0x80000000L), NumberUtils.createNumber("0x80000000", flags));
+        assertEquals(Long.valueOf(0xFFFFFFFFL), NumberUtils.createNumber("0xFFFFFFFF", flags));
 
         // Leading zero tests
-        assertEquals(Integer.valueOf(0x8000000), NumberUtils.createNumber("0x08000000"));
-        assertEquals(Integer.valueOf(0x7FFFFFFF), NumberUtils.createNumber("0x007FFFFFFF"));
-        assertEquals(Long.valueOf(0x80000000L), NumberUtils.createNumber("0x080000000"));
-        assertEquals(Long.valueOf(0xFFFFFFFFL), NumberUtils.createNumber("0x00FFFFFFFF"));
+        assertEquals(Integer.valueOf(0x8000000), NumberUtils.createNumber("0x08000000", flags));
+        assertEquals(Integer.valueOf(0x7FFFFFFF), NumberUtils.createNumber("0x007FFFFFFF", flags));
+        assertEquals(Long.valueOf(0x80000000L), NumberUtils.createNumber("0x080000000", flags));
+        assertEquals(Long.valueOf(0xFFFFFFFFL), NumberUtils.createNumber("0x00FFFFFFFF", flags));
 
-        assertEquals(Long.valueOf(0x800000000L), NumberUtils.createNumber("0x800000000"));
-        assertEquals(Long.valueOf(0x8000000000L), NumberUtils.createNumber("0x8000000000"));
-        assertEquals(Long.valueOf(0x80000000000L), NumberUtils.createNumber("0x80000000000"));
-        assertEquals(Long.valueOf(0x800000000000L), NumberUtils.createNumber("0x800000000000"));
-        assertEquals(Long.valueOf(0x8000000000000L), NumberUtils.createNumber("0x8000000000000"));
-        assertEquals(Long.valueOf(0x80000000000000L), NumberUtils.createNumber("0x80000000000000"));
-        assertEquals(Long.valueOf(0x800000000000000L), NumberUtils.createNumber("0x800000000000000"));
-        assertEquals(Long.valueOf(0x7FFFFFFFFFFFFFFFL), NumberUtils.createNumber("0x7FFFFFFFFFFFFFFF"));
+        assertEquals(Long.valueOf(0x800000000L), NumberUtils.createNumber("0x800000000", flags));
+        assertEquals(Long.valueOf(0x8000000000L), NumberUtils.createNumber("0x8000000000", flags));
+        assertEquals(Long.valueOf(0x80000000000L), NumberUtils.createNumber("0x80000000000", flags));
+        assertEquals(Long.valueOf(0x800000000000L), NumberUtils.createNumber("0x800000000000", flags));
+        assertEquals(Long.valueOf(0x8000000000000L), NumberUtils.createNumber("0x8000000000000", flags));
+        assertEquals(Long.valueOf(0x80000000000000L), NumberUtils.createNumber("0x80000000000000", flags));
+        assertEquals(Long.valueOf(0x800000000000000L), NumberUtils.createNumber("0x800000000000000", flags));
+        assertEquals(Long.valueOf(0x7FFFFFFFFFFFFFFFL), NumberUtils.createNumber("0x7FFFFFFFFFFFFFFF", flags));
         // N.B. Cannot use a hex constant such as 0x8000000000000000L here as that is interpreted as a negative long
-        assertEquals(new BigInteger("8000000000000000", 16), NumberUtils.createNumber("0x8000000000000000"));
-        assertEquals(new BigInteger("FFFFFFFFFFFFFFFF", 16), NumberUtils.createNumber("0xFFFFFFFFFFFFFFFF"));
+        assertEquals(new BigInteger("8000000000000000", 16), NumberUtils.createNumber("0x8000000000000000", flags));
+        assertEquals(new BigInteger("FFFFFFFFFFFFFFFF", 16), NumberUtils.createNumber("0xFFFFFFFFFFFFFFFF", flags));
 
         // Leading zero tests
-        assertEquals(Long.valueOf(0x80000000000000L), NumberUtils.createNumber("0x00080000000000000"));
-        assertEquals(Long.valueOf(0x800000000000000L), NumberUtils.createNumber("0x0800000000000000"));
-        assertEquals(Long.valueOf(0x7FFFFFFFFFFFFFFFL), NumberUtils.createNumber("0x07FFFFFFFFFFFFFFF"));
+        assertEquals(Long.valueOf(0x80000000000000L), NumberUtils.createNumber("0x00080000000000000", flags));
+        assertEquals(Long.valueOf(0x800000000000000L), NumberUtils.createNumber("0x0800000000000000", flags));
+        assertEquals(Long.valueOf(0x7FFFFFFFFFFFFFFFL), NumberUtils.createNumber("0x07FFFFFFFFFFFFFFF", flags));
         // N.B. Cannot use a hex constant such as 0x8000000000000000L here as that is interpreted as a negative long
-        assertEquals(new BigInteger("8000000000000000", 16), NumberUtils.createNumber("0x00008000000000000000"));
-        assertEquals(new BigInteger("FFFFFFFFFFFFFFFF", 16), NumberUtils.createNumber("0x0FFFFFFFFFFFFFFFF"));
+        assertEquals(new BigInteger("8000000000000000", 16), NumberUtils.createNumber("0x00008000000000000000", flags));
+        assertEquals(new BigInteger("FFFFFFFFFFFFFFFF", 16), NumberUtils.createNumber("0x0FFFFFFFFFFFFFFFF", flags));
     }
 
     @Test
@@ -1415,31 +1442,31 @@ public class NumberUtilsTest extends AbstractLangTest {
      */
     @Test
     public void testStringCreateNumberEnsureNoPrecisionLoss() {
-        assertTrue(NumberUtils.createNumber("1.23") instanceof Float);
-        assertTrue(NumberUtils.createNumber("3.40282354e+38") instanceof Double);
-        assertTrue(NumberUtils.createNumber("1.797693134862315759e+308") instanceof BigDecimal);
+        assertTrue(NumberUtils.createNumber("1.23", flags) instanceof Float);
+        assertTrue(NumberUtils.createNumber("3.40282354e+38", flags) instanceof Double);
+        assertTrue(NumberUtils.createNumber("1.797693134862315759e+308", flags) instanceof BigDecimal);
         // LANG-1060
-        assertTrue(NumberUtils.createNumber("001.12") instanceof Float);
-        assertTrue(NumberUtils.createNumber("-001.12") instanceof Float);
-        assertTrue(NumberUtils.createNumber("+001.12") instanceof Float);
-        assertTrue(NumberUtils.createNumber("003.40282354e+38") instanceof Double);
-        assertTrue(NumberUtils.createNumber("-003.40282354e+38") instanceof Double);
-        assertTrue(NumberUtils.createNumber("+003.40282354e+38") instanceof Double);
-        assertTrue(NumberUtils.createNumber("0001.797693134862315759e+308") instanceof BigDecimal);
-        assertTrue(NumberUtils.createNumber("-001.797693134862315759e+308") instanceof BigDecimal);
-        assertTrue(NumberUtils.createNumber("+001.797693134862315759e+308") instanceof BigDecimal);
+        assertTrue(NumberUtils.createNumber("001.12", flags) instanceof Float);
+        assertTrue(NumberUtils.createNumber("-001.12", flags) instanceof Float);
+        assertTrue(NumberUtils.createNumber("+001.12", flags) instanceof Float);
+        assertTrue(NumberUtils.createNumber("003.40282354e+38", flags) instanceof Double);
+        assertTrue(NumberUtils.createNumber("-003.40282354e+38", flags) instanceof Double);
+        assertTrue(NumberUtils.createNumber("+003.40282354e+38", flags) instanceof Double);
+        assertTrue(NumberUtils.createNumber("0001.797693134862315759e+308", flags) instanceof BigDecimal);
+        assertTrue(NumberUtils.createNumber("-001.797693134862315759e+308", flags) instanceof BigDecimal);
+        assertTrue(NumberUtils.createNumber("+001.797693134862315759e+308", flags) instanceof BigDecimal);
         //LANG-1613
-        assertTrue(NumberUtils.createNumber("2.2250738585072014E-308") instanceof Double);
-        assertTrue(NumberUtils.createNumber("2.2250738585072014E-308D") instanceof Double);
-        assertTrue(NumberUtils.createNumber("2.2250738585072014E-308F") instanceof Double);
-        assertTrue(NumberUtils.createNumber("4.9E-324") instanceof Double);
-        assertTrue(NumberUtils.createNumber("4.9E-324D") instanceof Double);
-        assertTrue(NumberUtils.createNumber("4.9E-324F") instanceof Double);
-        assertTrue(NumberUtils.createNumber("1.7976931348623157E308") instanceof Double);
-        assertTrue(NumberUtils.createNumber("1.7976931348623157E308D") instanceof Double);
-        assertTrue(NumberUtils.createNumber("1.7976931348623157E308F") instanceof Double);
-        assertTrue(NumberUtils.createNumber("4.9e-324D") instanceof Double);
-        assertTrue(NumberUtils.createNumber("4.9e-324F") instanceof Double);
+        assertTrue(NumberUtils.createNumber("2.2250738585072014E-308", flags) instanceof Double);
+        assertTrue(NumberUtils.createNumber("2.2250738585072014E-308D", flags) instanceof Double);
+        assertTrue(NumberUtils.createNumber("2.2250738585072014E-308F", flags) instanceof Double);
+        assertTrue(NumberUtils.createNumber("4.9E-324", flags) instanceof Double);
+        assertTrue(NumberUtils.createNumber("4.9E-324D", flags) instanceof Double);
+        assertTrue(NumberUtils.createNumber("4.9E-324F", flags) instanceof Double);
+        assertTrue(NumberUtils.createNumber("1.7976931348623157E308", flags) instanceof Double);
+        assertTrue(NumberUtils.createNumber("1.7976931348623157E308D", flags) instanceof Double);
+        assertTrue(NumberUtils.createNumber("1.7976931348623157E308F", flags) instanceof Double);
+        assertTrue(NumberUtils.createNumber("4.9e-324D", flags) instanceof Double);
+        assertTrue(NumberUtils.createNumber("4.9e-324F", flags) instanceof Double);
     }
 
     /**
